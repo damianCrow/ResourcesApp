@@ -1,4 +1,5 @@
 $gtb_blue: #1fbce7;
+$happy_green: #0EC129;
 
 html, body, #view {
 	position: relative;
@@ -17,4 +18,8 @@ html, body, #view {
   background-color: $gtb_blue;
   padding: 25px;
   border-radius: 5px;
+
+  &.view_booking {
+  	background-color: $happy_green;
+  }
 }

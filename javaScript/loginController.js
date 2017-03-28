@@ -1,4 +1,4 @@
-app.controller('loginController', ["$scope", "$http", function($scope, $http) {
+app.controller('loginController', ['$scope', '$http', function($scope, $http) {
 
   $scope.test = function() {
     

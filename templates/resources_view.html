@@ -2,34 +2,74 @@
 	
 	<div id="resourceCalendar" ui-calendar="uiConfig.calendar" ng-model="eventSources" ng-if="eventSources"></div>
 
-	<div id="newBookingForm" class="col-md-6 offset-md-3 center_vertically booking_form" ng-show="creatingBooking">
+	<div name="newBookingForm" id="newBookingForm" class="col-md-6 offset-md-3 center_vertically booking_form" ng-show="creatingBooking">
 	  <form>
+
+	  	<h5>Add details for new booking</h5>
+
 	    <div class="form-group">
-	      <label for="title">Booking Title:</label>
-	      <input type="text" class="form-control" id="title">
+	      <label for="bookingTitle">Booking Title:</label>
+	      <input type="text" class="form-control" id="bookingTitle">
 	    </div>
 
 	    <div class="form-group">
-	      <label for="notes">Booking Notes:</label>
-	      <textarea class="form-control" id="notes"></textarea>
+	      <label for="bookingNotes">Booking Notes:</label>
+	      <textarea class="form-control" id="bookingNotes"></textarea>
 	    </div>
 
 	    <div class="form-group">
-	      <label for="resource">Select Resource:</label>
-	      <select class="form-control" id="resource">
-	        <option>Option1</option>
+	      <label for="resourceName">Select Resource:</label>
+	      <select class="form-control" id="resourceName">
+	        <option>Option 1</option>
+	        <option>Option 2</option>
+	        <option>Option 3</option>
 	      </select>
 	    </div>
 
 	    <div class="form-group">
-	      <label for="project">Select project:</label>
-	       <select class="form-control" id="project">
-	        <option>Option1</option>
+	      <label for="projectName">Select project:</label>
+	       <select class="form-control" id="projectName">
+	        <option>Option 12</option>
+	        <option>Option 13</option>
 	      </select>
 	    </div>
 
 	    <button class="btn btn-warning" ng-click="closeForm()">Cancel</button>
-	    <button type="submit" class="btn btn-primary" ng-submit="">Submit</button>
+	    <button type="submit" class="btn btn-primary" ng-click="addBookingToDb(bookingDates)">Submit</button>
+	  </form>
+	</div>
+
+	<div name="displayBookingForm" id="displayBookingForm" class="col-md-6 offset-md-3 center_vertically booking_form view_booking" ng-show="showBookingData">
+	  <form>
+
+	  	<h5>View/edit details for booking {{bookingToDisplay.id}}</h5>
+
+	    <div class="form-group">
+	      <label for="editBookingTitle">Booking Title:</label>
+	      <input type="text" class="form-control" id="editBookingTitle" value="{{bookingToDisplay.title}}">
+	    </div>
+
+	    <div class="form-group">
+	      <label for="editBookingNotes">Booking Notes:</label>
+	      <textarea class="form-control" id="editBookingNotes" value="{{bookingToDisplay.notes}}">{{bookingToDisplay.notes}}</textarea>
+	    </div>
+
+	    <div class="form-group">
+	      <label for="editResourceName">Select Resource:</label>
+	      <select class="form-control" id="editResourceName" value="{{bookingToDisplay.resourceName}}">
+	        <option>{{bookingToDisplay.resourceName}}</option>
+	      </select>
+	    </div>
+
+	    <div class="form-group">
+	      <label for="editProjectName">Select project:</label>
+	       <select class="form-control" id="editProjectName" value="{{bookingToDisplay.projectName}}">
+	        <option>{{bookingToDisplay.projectName}}</option>
+	      </select>
+	    </div>
+
+	    <button class="btn btn-warning" ng-click="closeForm()">Close</button>
+	    <button type="submit" class="btn btn-primary" ng-click="">Update</button>
 	  </form>
 	</div>
 </div>

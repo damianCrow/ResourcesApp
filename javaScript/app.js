@@ -1,8 +1,6 @@
 var app = angular.module('resourcesApp', ['ngRoute', 'ui.calendar']);
 
-var baseUrl = 'http://localhost:8888/api/public';
-
-app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+app.config(["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
 
 	$routeProvider.when('/', {templateUrl: 'templates/home.html'});
   $routeProvider.when('/login', {templateUrl: 'templates/login.html'});
