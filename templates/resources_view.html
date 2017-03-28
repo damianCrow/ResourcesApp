@@ -1,0 +1,35 @@
+<div ng-controller="resourceViewController">
+	
+	<div id="resourceCalendar" ui-calendar="uiConfig.calendar" ng-model="eventSources" ng-if="eventSources"></div>
+
+	<div id="newBookingForm" class="col-md-6 offset-md-3 center_vertically booking_form" ng-show="creatingBooking">
+	  <form>
+	    <div class="form-group">
+	      <label for="title">Booking Title:</label>
+	      <input type="text" class="form-control" id="title">
+	    </div>
+
+	    <div class="form-group">
+	      <label for="notes">Booking Notes:</label>
+	      <textarea class="form-control" id="notes"></textarea>
+	    </div>
+
+	    <div class="form-group">
+	      <label for="resource">Select Resource:</label>
+	      <select class="form-control" id="resource">
+	        <option>Option1</option>
+	      </select>
+	    </div>
+
+	    <div class="form-group">
+	      <label for="project">Select project:</label>
+	       <select class="form-control" id="project">
+	        <option>Option1</option>
+	      </select>
+	    </div>
+
+	    <button class="btn btn-warning" ng-click="closeForm()">Cancel</button>
+	    <button type="submit" class="btn btn-primary" ng-submit="">Submit</button>
+	  </form>
+	</div>
+</div>
