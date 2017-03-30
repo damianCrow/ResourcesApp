@@ -1,8 +1,6 @@
 app.controller('mainController', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
 
-  $rootScope.baseUrl = 'http://localhost:8888/api/public';
-
-  $rootScope.makeRequest = function(reqMethod, endpoint, reqData, successCallback) {
+  $rootScope.makeRequest = function(reqMethod, endPoint, reqData, successCallback) {
     
     if(!reqData) {
 
@@ -10,7 +8,7 @@ app.controller('mainController', ['$scope', '$http', '$rootScope', function($sco
     }
 
     $http({
-      url: $rootScope.baseUrl + endpoint, 
+      url: endPoint, 
       method: reqMethod,
       data: reqData,
       transformRequest: angular.identity,

@@ -1,32 +1,44 @@
-app.controller('resourceViewController', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getInfoService', function($scope, $http, $rootScope, getInfoService) {
 
 	$scope.creatingBooking = false;
-
 	$scope.eventSources = [{
     events: [],
-    color: '#1694CB',     // an option!
     textColor: 'white' // an option!
   }];
 
-	$rootScope.makeRequest('GET', '/booking', null, function(response) {
+  getInfoService.getProjects(function(response) {
 
-		angular.forEach(response.data, function(booking, idx) {
+  	$scope.projects = response.data;
+  	getInfoService.getBookings(populateEventsArray);
+  });
 
-			var bookingData = {
-				arrayIndex: idx,
-				title: booking.title,
-				start: booking.start_date,
-				end: booking.end_date,
-				id: booking.id,
-				notes: booking.notes,
-				resourceName: booking.resource_name,
-   			projectName: booking.project_name,
-   			createdBy: booking.created_by
-   		}
+  function populateEventsArray(response) {
+  	
+  	angular.forEach(response.data, function(booking, idx) {
 
-			$scope.eventSources[0].events.push(bookingData);
-		});
- 	});
+      var bookingData = {
+        arrayIndex: idx,
+        title: booking.title,
+        start: booking.start_date,
+        end: booking.end_date,
+        id: booking.id,
+        notes: booking.notes,
+        resourceName: booking.resource_name,
+        projectName: booking.project_name,
+        createdBy: booking.created_by
+      }
+
+      for(var i = 0; i < $scope.projects.length; i++) {
+
+  			if($scope.projects[i].name === booking.project_name) {
+
+  				bookingData.color = $scope.projects[i].colour_code;
+  			}
+  		}
+
+      $scope.eventSources[0].events.push(bookingData);
+    });
+  }
 
 	$scope.uiConfig = {
 
@@ -37,7 +49,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', funct
       selectHelper: true,
       allDayDefault: true,
       header: {
-        left: 'month basicWeek basicDay agendaWeek agendaDay',
+        left: 'month agendaWeek',
         center: 'title',
         right: 'today prev,next'
       },
@@ -48,7 +60,18 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', funct
       },
 
       eventDrop: function(event, delta, revertFunc) {
-				console.log(event.start.format());
+
+        if(!confirm("The start date for " + event.title + " will be changed to: " + event.start.format())) {
+          
+          revertFunc();
+        }
+        else {
+
+        	$rootScope.makeRequest('PUT', 'api/public/booking/update/' + event.id + '?start_date=' + event.start.format() + '&end_date=' + event.end.format(), null, function(response) {
+
+        		console.log(response);
+					});
+        }
       },
       select: function(start, end, allDay) {
 
@@ -67,13 +90,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', funct
         }
         else {
 
-        	var formData = new FormData();
-
-			    formData.append('id', event.id);
-			    formData.append('propertyToUpdate', 'end_date');
-			    formData.append('updateValue', event.end.format());
-
-        	$rootScope.makeRequest('POST', '/booking/update', formData, function(response) {
+        	$rootScope.makeRequest('PUT', 'api/public/booking/update/' + event.id + '?end_date=' + event.end.format(), null, function(response) {
 
         		console.log(response);
 					});
@@ -115,12 +132,57 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', funct
    	formData.append('resource_name', $('#resourceName')[0].value);
    	formData.append('project_name', $('#projectName')[0].value);
 
-   	$rootScope.makeRequest('POST', '/booking', formData, function(response) {
+   	$rootScope.makeRequest('POST', 'api/public/booking', formData, function(response) {
 
    		console.log(response);
    		$scope.addBookingToCalendar('#resourceCalendar', formData);
    	});
 
 		$scope.closeForm();
+	}
+
+	$scope.deleteBooking = function(bookingId, eventSourcesArrayIndex) {
+
+		if(!confirm("Are you sure you want to DELETE " + $scope.eventSources[0].events[eventSourcesArrayIndex].title + "?")) {
+          
+      $scope.closeForm();
+    }
+    else {
+
+			$rootScope.makeRequest('DELETE', 'api/public/booking/' + bookingId, null, function(response) {
+
+				console.log(response);
+	   		$scope.eventSources[0].events.splice(eventSourcesArrayIndex, 1);
+	   		$scope.closeForm();
+	   	});
+		}
+	}
+
+	$scope.updateBooking = function(bookingId, eventSourcesArrayIndex) {
+	
+		if(!confirm("Are you sure you want to UPDATE " + $scope.eventSources[0].events[eventSourcesArrayIndex].title + "?")) {
+          
+      $scope.closeForm();
+    }
+    else {
+
+    	var formData = new FormData();
+
+	    formData.append('title', $('#editBookingTitle')[0].value);
+	   	formData.append('notes', $('#editBookingNotes')[0].value);
+	   	formData.append('resource_name', $('#editResourceName')[0].value);
+	   	formData.append('project_name', $('#editProjectName')[0].value);
+
+			$rootScope.makeRequest('POST', 'api/public/booking/update/' + bookingId, formData, function(response) {
+
+				console.log(response);
+
+	   		// $scope.eventSources[0].events[eventSourcesArrayIndex].title = formData.get('title');
+	   		// $scope.eventSources[0].events[eventSourcesArrayIndex].notes = formData.get('notes');
+	   		// $scope.eventSources[0].events[eventSourcesArrayIndex].resourceName = formData.get('resource_name');
+	   		// $scope.eventSources[0].events[eventSourcesArrayIndex].projectName = formData.get('project_name');
+	   		$scope.closeForm();
+	   	});
+		}
 	}
 }]);

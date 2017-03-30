@@ -28,14 +28,14 @@
 
 	    <div class="form-group">
 	      <label for="projectName">Select project:</label>
-	       <select class="form-control" id="projectName">
-	        <option>Option 12</option>
-	        <option>Option 13</option>
+	      <select class="form-control" id="projectName">
+	       	<option value="">-- Please select a peoject. --</option>
+	        <option ng-repeat="project in projects" value="{{project.name}}">{{project.name}}</option>
 	      </select>
 	    </div>
 
 	    <button class="btn btn-warning" ng-click="closeForm()">Cancel</button>
-	    <button type="submit" class="btn btn-primary" ng-click="addBookingToDb(bookingDates)">Submit</button>
+	    <button type="submit" class="btn btn-primary" ng-click="addBookingToDb(bookingDates)">Save</button>
 	  </form>
 	</div>
 
@@ -63,13 +63,14 @@
 
 	    <div class="form-group">
 	      <label for="editProjectName">Select project:</label>
-	       <select class="form-control" id="editProjectName" value="{{bookingToDisplay.projectName}}">
-	        <option>{{bookingToDisplay.projectName}}</option>
+	       <select class="form-control" id="editProjectName">
+	        <option ng-repeat="project in projects" ng-selected="project.name === bookingToDisplay.projectName" value="{{project.name}}">{{project.name}}</option>
 	      </select>
 	    </div>
 
 	    <button class="btn btn-warning" ng-click="closeForm()">Close</button>
-	    <button type="submit" class="btn btn-primary" ng-click="">Update</button>
+	    <button type="submit" class="btn btn-primary" ng-click="updateBooking(bookingToDisplay.id, bookingToDisplay.arrayIndex)">Update</button>
+	    <button type="submit" class="btn btn-danger" ng-click="deleteBooking(bookingToDisplay.id, bookingToDisplay.arrayIndex)">Delete</button>
 	  </form>
 	</div>
 </div>
