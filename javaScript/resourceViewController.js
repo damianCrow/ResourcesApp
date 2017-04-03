@@ -1,20 +1,26 @@
-app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getInfoService', function($scope, $http, $rootScope, getInfoService) {
+app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getInfoService', 'filterService', '$timeout', function($scope, $http, $rootScope, getInfoService, filterService, $timeout) {
 
 	$scope.creatingBooking = false;
+	$scope.filterObj = {};
 	$scope.eventSources = [{
-    events: [],
-    textColor: 'white' // an option!
+    events: []
   }];
 
   getInfoService.getProjects(function(response) {
 
   	$scope.projects = response.data;
-  	getInfoService.getBookings(populateEventsArray);
+
+  	getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
+
+  	getInfoService.getResources(function(response) {
+
+  		$scope.resources = response.data;
+  	});
   });
 
-  function populateEventsArray(response) {
+  function populateEventsArray(arrayToPopulate, dataArray, callBack) {
   	
-  	angular.forEach(response.data, function(booking, idx) {
+  	angular.forEach(dataArray, function(booking, idx) {
 
       var bookingData = {
         arrayIndex: idx,
@@ -25,7 +31,8 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         notes: booking.notes,
         resourceName: booking.resource_name,
         projectName: booking.project_name,
-        createdBy: booking.created_by
+        createdBy: booking.created_by,
+        textColor: 'white'
       }
 
       for(var i = 0; i < $scope.projects.length; i++) {
@@ -36,14 +43,19 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   			}
   		}
 
-      $scope.eventSources[0].events.push(bookingData);
+      arrayToPopulate.push(bookingData);
     });
+
+    if(callBack) {
+
+    	callBack(arrayToPopulate);
+    }
   }
 
 	$scope.uiConfig = {
 
     calendar: {
-      height: '100%',
+      height: window.innerHeight / 1.125,
       editable: true,
       selectable: true,
       selectHelper: true,
@@ -53,10 +65,22 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         center: 'title',
         right: 'today prev,next'
       },
+
+      viewRender: function(view, element) {
+        // console.log("View Changed: ", view.start, view.end);
+      },
+
       eventClick: function(event) {
 
+        for(var i = 0; i < $scope.eventSources[0].events.length; i++) {
+          
+          if(parseInt(event.id) === $scope.eventSources[0].events[i].id) {
+
+            $scope.bookingToDisplay = $scope.eventSources[0].events[i];
+          }
+        }
+
       	$scope.showBookingData = true;
-      	$scope.bookingToDisplay = $scope.eventSources[0].events[event.arrayIndex];
       },
 
       eventDrop: function(event, delta, revertFunc) {
@@ -110,15 +134,23 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 		$scope.showBookingData = false;
 	}
 
-	$scope.addBookingToCalendar = function(calendarId, formData) {
+	$scope.addBookingToCalendar = function(calendarId, formData, queryParamsString) {
+
+		$rootScope.makeRequest('GET', 'api/public/booking/specific/?' + queryParamsString, null, function(response) {
+
+      angular.forEach(response.data, function(item) {
+
+        $scope.eventSources[0].events.push(item);
+      });
+   	});
 		
-		$(calendarId).fullCalendar('renderEvent',
-      {
-        title: formData.get('title'),
-        start: formData.get('start_date'),
-        end: formData.get('end_date')
-			}, true
-		);
+		// $(calendarId).fullCalendar('renderEvent',
+  //     {
+  //       title: formData.get('title'),
+  //       start: formData.get('start_date'),
+  //       end: formData.get('end_date')
+		// 	}, true
+		// );
 	}
 
 	$scope.addBookingToDb = function(data) {
@@ -134,8 +166,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
    	$rootScope.makeRequest('POST', 'api/public/booking', formData, function(response) {
 
-   		console.log(response);
-   		$scope.addBookingToCalendar('#resourceCalendar', formData);
+   		$scope.addBookingToCalendar('#resourceCalendar', formData, 'start_date=' + formData.get('start_date') + '&title=' + formData.get('title'));
    	});
 
 		$scope.closeForm();
@@ -184,5 +215,25 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 	   		$scope.closeForm();
 	   	});
 		}
+	}
+
+	$scope.filterMethod = function(selectValue, filterKey) {
+
+		var bookingsArray = [];
+
+		$scope.filterObj[filterKey] = selectValue;
+
+		getInfoService.getBookings(bookingsArray, populateEventsArray, function(arrayOfResults) {
+
+			filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+				$scope.eventSources[0].events.splice(0, $scope.eventSources[0].events.length);
+
+				angular.forEach(resultArray, function(booking) {
+
+					$scope.eventSources[0].events.push(booking);
+				});
+			});
+		});
 	}
 }]);

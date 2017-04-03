@@ -28,9 +28,25 @@
 		<link rel="stylesheet" type="text/css" href="css/styles.min.css">
 	</head>
 
-	<body ng-app="resourcesApp" class="container-fluid" ng-controller="mainController">
+	<body ng-app="resourcesApp" class="" ng-controller="mainController">
 
-		<div id="view" ng-view class="row">
+		<nav class="navbar navbar-inverse bg-inverse navbar-toggleable">
+  		<div class="collapse navbar-collapse">
+		    
+		    <a class="navbar-brand" ng-href="#"> Resources </a>
+		    
+		    <ul class="navbar-nav nav" ng-controller="navController">
+		      <li class="nav-item" ng-class="{ active: isActive('/')}"><a class="nav-link" ng-href="#/">Home</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/bookings')}" ng-hide=""><a class="nav-link" ng-href="#!/bookings">Bookings Calendar</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/projects')}" ng-hide=""><a class="nav-link" ng-href="#!/projects">Projects</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/resources')}" ng-hide=""><a class="nav-link" ng-href="#!/resources">Resources</a></li>
+		    </ul>
+		  </div>
+
+		  <button class="btn btn-info" ng-click="">Log out</button>
+		</nav>
+
+		<div id="view" ng-view class="container">
 			
 		</div>
 

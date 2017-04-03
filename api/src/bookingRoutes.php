@@ -32,6 +32,50 @@ $app->get('/booking', function ($request, $response, $args) {
 	$dbconn->close();
 });
 
+$app->get('/booking/specific/', function ($request, $response, $args) {
+
+	require_once('database_connection.php');
+
+	$sqlQueryParams = '';
+	$counter = 0;
+
+	foreach($request->getQueryParams() as $key => $value) {
+
+		$counter ++;
+
+		if($counter === count($request->getQueryParams())) {
+
+			$sqlQueryParams .= $key . '=' . json_encode($value);
+		}
+		else {
+
+			$sqlQueryParams .= $key . '=' . json_encode($value) . ' AND ';
+		}
+	}
+
+	$query = 'SELECT * FROM bookings WHERE '.$sqlQueryParams.'';
+
+	$result = $dbconn->query($query);
+
+	if($result) {
+
+		$resultsArray = [];
+
+		while($row = $result->fetch_assoc()) {
+
+			array_push($resultsArray, $row);
+		}
+
+		return $response->getBody()->write(json_encode($resultsArray));
+	}
+	else {
+
+		return $response->getBody()->write('Error! '. $dbconn->error);
+	}
+
+	$dbconn->close();
+});
+
 $app->post('/booking', function($request, $response, $args) {
 
 	require_once('database_connection.php');

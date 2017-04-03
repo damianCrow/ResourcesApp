@@ -23,3 +23,15 @@ html, body, #view {
   	background-color: $happy_green;
   }
 }
+
+.navbar {
+	margin-bottom: 15px;
+
+	.btn {
+		cursor: pointer;
+	}
+}
+
+.filters_wrapper {
+	margin-bottom: 15px;
+}

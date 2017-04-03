@@ -26,8 +26,12 @@ require __DIR__ . '/../src/middleware.php';
 // Register booking routes
 require __DIR__ . '/../src/bookingRoutes.php';
 
-// Register client routes
+// Register project routes
 require __DIR__ . '/../src/projectRoutes.php';
+
+// Register resource routes
+require __DIR__ . '/../src/resourceRoutes.php';
+
 
 // Run app
 $app->run();
