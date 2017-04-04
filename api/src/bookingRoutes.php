@@ -32,7 +32,7 @@ $app->get('/booking', function ($request, $response, $args) {
 	$dbconn->close();
 });
 
-$app->get('/booking/specific/', function ($request, $response, $args) {
+$app->get('/booking/daterange/', function ($request, $response, $args) {
 
 	require_once('database_connection.php');
 
@@ -43,18 +43,31 @@ $app->get('/booking/specific/', function ($request, $response, $args) {
 
 		$counter ++;
 
-		if($counter === count($request->getQueryParams())) {
+		if($key === 'start_date') {
 
-			$sqlQueryParams .= $key . '=' . json_encode($value);
+			$operator = ' >= ';
+		}
+		else if($key === 'end_date') {
+
+			$operator = ' <= ';
 		}
 		else {
 
-			$sqlQueryParams .= $key . '=' . json_encode($value) . ' AND ';
+			$operator = ' = ';
+		}
+
+		if($counter === count($request->getQueryParams())) {
+
+			$sqlQueryParams .= $key . $operator . json_encode($value);
+		}
+		else {
+
+			$sqlQueryParams .= $key . $operator . json_encode($value) . ' AND ';
 		}
 	}
 
 	$query = 'SELECT * FROM bookings WHERE '.$sqlQueryParams.'';
-
+// echo $query;
 	$result = $dbconn->query($query);
 
 	if($result) {

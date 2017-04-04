@@ -1,4 +1,4 @@
-app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getInfoService', 'filterService', '$timeout', function($scope, $http, $rootScope, getInfoService, filterService, $timeout) {
+app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getInfoService', 'filterService', 'messageService', '$timeout', function($scope, $http, $rootScope, getInfoService, filterService, messageService, $timeout) {
 
 	$scope.creatingBooking = false;
 	$scope.filterObj = {};
@@ -6,11 +6,30 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     events: []
   }];
 
+  // $(document).ready(function() {
+
+  //   var thisYear = new Date().getFullYear();
+  //   var thisMonth = new Date().getMonth() + 1; // + 1 starts the month array at 1 instead of 0.
+  //   var monthLength = new Date(thisYear, thisMonth, 0).getDate();
+
+  //   if(thisMonth < 10) {
+
+  //     thisMonth = '0' + thisMonth;
+  //   }
+
+  //   $scope.bookingsForThisMonthQuery = 'start_date=' + thisYear + '-' + thisMonth + '-01&end_date=' + thisYear + '-' + thisMonth + '-' + monthLength;
+    
+  //   getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(responseData) {
+
+  //     populateEventsArray($scope.eventSources[0].events, responseData);
+  //   });
+  // });
+
   getInfoService.getProjects(function(response) {
 
   	$scope.projects = response.data;
 
-  	getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
+  	// getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
 
   	getInfoService.getResources(function(response) {
 
@@ -19,18 +38,19 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   });
 
   function populateEventsArray(arrayToPopulate, dataArray, callBack) {
-  	
+
+  	arrayToPopulate.splice(0, arrayToPopulate.length);
+
   	angular.forEach(dataArray, function(booking, idx) {
 
       var bookingData = {
-        arrayIndex: idx,
         title: booking.title,
         start: booking.start_date,
         end: booking.end_date,
         id: booking.id,
         notes: booking.notes,
-        resourceName: booking.resource_name,
-        projectName: booking.project_name,
+        resource_name: booking.resource_name,
+        project_name: booking.project_name,
         createdBy: booking.created_by,
         textColor: 'white'
       }
@@ -52,33 +72,47 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     }
   }
 
+  function findBooking(bookingId) {
+
+    for(var i = 0; i < $scope.eventSources[0].events.length; i++) {
+     
+      if(parseInt(bookingId) === parseInt($scope.eventSources[0].events[i].id)) {
+
+       return $scope.eventSources[0].events[i];
+      }
+    }
+  }
+
 	$scope.uiConfig = {
 
     calendar: {
-      height: window.innerHeight / 1.125,
+      height: 700,
       editable: true,
       selectable: true,
       selectHelper: true,
       allDayDefault: true,
       header: {
-        left: 'month agendaWeek',
+        left: 'month agendaWeek listMonth',
         center: 'title',
         right: 'today prev,next'
       },
 
       viewRender: function(view, element) {
-        // console.log("View Changed: ", view.start, view.end);
+
+        $scope.bookingsForThisMonthQuery = 'start_date=' + view.start.format() + '&end_date=' + view.end.format();
+        
+        getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+
+          filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+            populateEventsArray($scope.eventSources[0].events, resultArray);
+          });
+        });
       },
 
       eventClick: function(event) {
 
-        for(var i = 0; i < $scope.eventSources[0].events.length; i++) {
-          
-          if(parseInt(event.id) === $scope.eventSources[0].events[i].id) {
-
-            $scope.bookingToDisplay = $scope.eventSources[0].events[i];
-          }
-        }
+        $scope.bookingToDisplay = findBooking(event.id);
 
       	$scope.showBookingData = true;
       },
@@ -93,7 +127,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         	$rootScope.makeRequest('PUT', 'api/public/booking/update/' + event.id + '?start_date=' + event.start.format() + '&end_date=' + event.end.format(), null, function(response) {
 
-        		console.log(response);
+        		messageService.showMessage(response.data, $rootScope.closeMessage);
 					});
         }
       },
@@ -116,7 +150,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         	$rootScope.makeRequest('PUT', 'api/public/booking/update/' + event.id + '?end_date=' + event.end.format(), null, function(response) {
 
-        		console.log(response);
+            messageService.showMessage(response.data, $rootScope.closeMessage);
 					});
         }
     	}
@@ -134,24 +168,16 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 		$scope.showBookingData = false;
 	}
 
-	$scope.addBookingToCalendar = function(calendarId, formData, queryParamsString) {
+	// $scope.addBookingToCalendar = function(calendarId, formData, queryParamsString) {
 
-		$rootScope.makeRequest('GET', 'api/public/booking/specific/?' + queryParamsString, null, function(response) {
+	// 	$rootScope.makeRequest('GET', 'api/public/booking/specific/?' + queryParamsString, null, function(response) {
 
-      angular.forEach(response.data, function(item) {
+ //      angular.forEach(response.data, function(item) {
 
-        $scope.eventSources[0].events.push(item);
-      });
-   	});
-		
-		// $(calendarId).fullCalendar('renderEvent',
-  //     {
-  //       title: formData.get('title'),
-  //       start: formData.get('start_date'),
-  //       end: formData.get('end_date')
-		// 	}, true
-		// );
-	}
+ //        $scope.eventSources[0].events.push(item);
+ //      });
+ //   	});
+	// }
 
 	$scope.addBookingToDb = function(data) {
 
@@ -166,15 +192,17 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
    	$rootScope.makeRequest('POST', 'api/public/booking', formData, function(response) {
 
-   		$scope.addBookingToCalendar('#resourceCalendar', formData, 'start_date=' + formData.get('start_date') + '&title=' + formData.get('title'));
+      messageService.showMessage(response.data, $rootScope.closeMessage);
+      getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
+   		// $scope.addBookingToCalendar('#resourceCalendar', formData, 'start_date=' + formData.get('start_date') + '&title=' + formData.get('title'));
    	});
 
 		$scope.closeForm();
 	}
 
-	$scope.deleteBooking = function(bookingId, eventSourcesArrayIndex) {
+	$scope.deleteBooking = function(bookingId) {
 
-		if(!confirm("Are you sure you want to DELETE " + $scope.eventSources[0].events[eventSourcesArrayIndex].title + "?")) {
+		if(!confirm("Are you sure you want to DELETE " + findBooking(bookingId).title + "?")) {
           
       $scope.closeForm();
     }
@@ -182,16 +210,16 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
 			$rootScope.makeRequest('DELETE', 'api/public/booking/' + bookingId, null, function(response) {
 
-				console.log(response);
-	   		$scope.eventSources[0].events.splice(eventSourcesArrayIndex, 1);
+				messageService.showMessage(response.data, $rootScope.closeMessage);
+	   		getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
 	   		$scope.closeForm();
 	   	});
 		}
 	}
 
-	$scope.updateBooking = function(bookingId, eventSourcesArrayIndex) {
+	$scope.updateBooking = function(bookingId) {
 	
-		if(!confirm("Are you sure you want to UPDATE " + $scope.eventSources[0].events[eventSourcesArrayIndex].title + "?")) {
+		if(!confirm("Are you sure you want to UPDATE " + findBooking(bookingId).title + "?")) {
           
       $scope.closeForm();
     }
@@ -206,12 +234,8 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
 			$rootScope.makeRequest('POST', 'api/public/booking/update/' + bookingId, formData, function(response) {
 
-				console.log(response);
-
-	   		// $scope.eventSources[0].events[eventSourcesArrayIndex].title = formData.get('title');
-	   		// $scope.eventSources[0].events[eventSourcesArrayIndex].notes = formData.get('notes');
-	   		// $scope.eventSources[0].events[eventSourcesArrayIndex].resourceName = formData.get('resource_name');
-	   		// $scope.eventSources[0].events[eventSourcesArrayIndex].projectName = formData.get('project_name');
+				messageService.showMessage(response.data, $rootScope.closeMessage);
+        getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
 	   		$scope.closeForm();
 	   	});
 		}
@@ -223,16 +247,11 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
 		$scope.filterObj[filterKey] = selectValue;
 
-		getInfoService.getBookings(bookingsArray, populateEventsArray, function(arrayOfResults) {
+		getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
 			filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
 
-				$scope.eventSources[0].events.splice(0, $scope.eventSources[0].events.length);
-
-				angular.forEach(resultArray, function(booking) {
-
-					$scope.eventSources[0].events.push(booking);
-				});
+        populateEventsArray($scope.eventSources[0].events, resultArray);
 			});
 		});
 	}

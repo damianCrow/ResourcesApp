@@ -6,7 +6,22 @@ app.service('getInfoService', ['$rootScope', '$http', function($rootScope, $http
 
       $rootScope.makeRequest('GET', 'api/public/booking', null, function(response) {
 
-        callBack(arrayToPopulate, response.data, callBack2);
+        if(callBack2) {
+
+          callBack(arrayToPopulate, response.data, callBack2);
+        }
+        else {
+
+          callBack(arrayToPopulate, response.data);
+        }
+      });
+    },
+
+    getBookingsDateRange: function(queryString, callBack) {
+
+      $rootScope.makeRequest('GET', 'api/public/booking/daterange/?' + queryString, null, function(response) {
+
+        callBack(response.data);
       });
     },
 

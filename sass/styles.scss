@@ -34,4 +34,18 @@ html, body, #view {
 
 .filters_wrapper {
 	margin-bottom: 15px;
+	padding: 0;
+
+	&.float-md-right {
+		text-align: end;
+	}
+}
+
+.custom_alert {
+	position: absolute;
+	transform: translate(-50%, -50%);
+	top: 50%;
+	left: 50%;
+	width: 50%;
+	z-index: 10;
 }

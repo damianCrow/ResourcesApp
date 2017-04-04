@@ -22,4 +22,9 @@ app.controller('mainController', ['$scope', '$http', '$rootScope', function($sco
      console.log(response);
     });
   }
+
+  $rootScope.closeMessage = function() {
+ 
+    $('.custom_alert').remove();
+  }
 }]);
