@@ -18,6 +18,7 @@ html, body, #view {
   background-color: $gtb_blue;
   padding: 25px;
   border-radius: 5px;
+  width: 400px;
 
   &.view_booking {
   	background-color: $happy_green;
@@ -35,6 +36,7 @@ html, body, #view {
 .filters_wrapper {
 	margin-bottom: 15px;
 	padding: 0;
+	z-index: 2;
 
 	&.float-md-right {
 		text-align: end;
@@ -48,4 +50,10 @@ html, body, #view {
 	left: 50%;
 	width: 50%;
 	z-index: 10;
+}
+
+.booking_details {
+	font-size: 12px;
+  display: block;
+  line-height: 15px;
 }

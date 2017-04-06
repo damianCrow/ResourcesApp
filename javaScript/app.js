@@ -1,4 +1,4 @@
-var app = angular.module('resourcesApp', ['ngRoute', 'ui.calendar']);
+var app = angular.module('resourcesApp', ['ngRoute']);
 
 app.config(["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
 

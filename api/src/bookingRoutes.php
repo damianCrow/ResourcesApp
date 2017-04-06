@@ -67,7 +67,7 @@ $app->get('/booking/daterange/', function ($request, $response, $args) {
 	}
 
 	$query = 'SELECT * FROM bookings WHERE '.$sqlQueryParams.'';
-// echo $query;
+
 	$result = $dbconn->query($query);
 
 	if($result) {

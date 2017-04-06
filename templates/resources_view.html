@@ -16,9 +16,10 @@
 		</select>
 	</div>
 
-	<div id="resourceCalendar" ui-calendar="uiConfig.calendar" ng-model="eventSources" ng-if="eventSources"></div>
+	<div class="calendar"></div>
+  <div class="realtime-info"></div>
 
-	<div name="newBookingForm" id="newBookingForm" class="col-md-6 offset-md-3 center_vertically booking_form" ng-show="creatingBooking">
+	<div name="newBookingForm" id="newBookingForm" class="center_vertically booking_form" ng-show="creatingBooking">
 	  <form name="bookingForm" ng-submit="bookingForm.$valid && addBookingToDb(bookingDates)">
 
 	  	<h5>Add details for new booking</h5>
@@ -49,12 +50,12 @@
 	      </select>
 	    </div>
 
-	    <button class="btn btn-warning" ng-click="closeForm()">Cancel</button>
+	    <button class="btn btn-warning" ng-click="closeForm('newBookingForm')">Cancel</button>
 	    <button type="submit" class="btn btn-primary">Save</button>
 	  </form>
 	</div>
 
-	<div name="displayBookingForm" id="displayBookingForm" class="col-md-6 offset-md-3 center_vertically booking_form view_booking" ng-show="showBookingData">
+	<div name="displayBookingForm" id="displayBookingForm" class="center_vertically booking_form view_booking" ng-show="showBookingData">
 	  <form>
 
 	  	<h5>View/edit details for booking {{bookingToDisplay.id}}</h5>
@@ -83,7 +84,7 @@
 	      </select>
 	    </div>
 
-	    <button class="btn btn-warning" ng-click="closeForm()">Close</button>
+	    <button class="btn btn-warning" ng-click="closeForm('displayBookingForm')">Close</button>
 	    <button type="submit" class="btn btn-primary" ng-click="updateBooking(bookingToDisplay.id)">Update</button>
 	    <button type="submit" class="btn btn-danger" ng-click="deleteBooking(bookingToDisplay.id)">Delete</button>
 	  </form>
