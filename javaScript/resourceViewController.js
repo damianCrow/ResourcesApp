@@ -2,8 +2,10 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
   var today = moment().startOf('day');
   $scope.creatingBooking = false;
+  $scope.showBookingData = false;
   $scope.filterObj = {};
   $scope.selectedPeriod = '3 days'; 
+  $('#newBookingForm, #displayBookingForm').draggable();
 
   function populateEventsArray(arrayToPopulate, dataArray, callBack) {
 
@@ -175,8 +177,12 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     Item_Clicked: function (item) {
 
-       $scope.showBookingData = true;
-        console.log( item );
+      $scope.bookingToDisplay = item;
+
+      $scope.$apply(function() {
+
+        $scope.showBookingData = true;
+      });
     },
 
     Item_Dragged: function (item, sectionID, start, end) {
@@ -232,10 +238,6 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     Item_Resized: function (item, start, end) {
         var foundItem;
 
-        console.log(item);
-        console.log(start);
-        console.log(end);
-
         for (var i = 0; i < Calendar.Items.length; i++) {
             foundItem = Calendar.Items[i];
 
@@ -244,6 +246,26 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
                 foundItem.end = end;
 
                 Calendar.Items[i] = foundItem;
+
+                if(!confirm(item.title + ' will start: ' + start.format('MMMM Do YYYY, h:mm a') + ' and end: ' + end.format('MMMM Do YYYY, h:mm a'))) {
+          
+                  TimeScheduler.Init();
+                }
+                else {
+
+                  $rootScope.makeRequest('PUT', 'api/public/booking/update/' + foundItem.id + '?start_date=' + moment.utc(moment(foundItem.start)).format() + '&end_date=' + moment.utc(moment(foundItem.end)).format(), null, function(response) {
+
+                    messageService.showMessage(response.data, $rootScope.closeMessage);
+                    
+                    getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+
+                      filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+                        populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+                      });
+                    });
+                  });
+                }
             }
         }
 
@@ -342,7 +364,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
   $scope.deleteBooking = function(bookingId) {
 
-    if(!confirm("Are you sure you want to DELETE " + findBooking(bookingId).title + "?")) {
+    if(!confirm("Are you sure you want to DELETE " + $scope.bookingToDisplay.title + "?")) {
           
       $scope.closeForm('displayBookingForm');
     }
@@ -351,7 +373,13 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       $rootScope.makeRequest('DELETE', 'api/public/booking/' + bookingId, null, function(response) {
 
         messageService.showMessage(response.data, $rootScope.closeMessage);
-        getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
+        getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+
+          filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+            populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+          });
+        });
         $scope.closeForm('displayBookingForm');
       });
     }
@@ -359,7 +387,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
   $scope.updateBooking = function(bookingId) {
   
-    if(!confirm("Are you sure you want to UPDATE " + findBooking(bookingId).title + "?")) {
+    if(!confirm("Are you sure you want to UPDATE " + $scope.bookingToDisplay.title + "?")) {
           
       $scope.closeForm('displayBookingForm');
     }
@@ -375,7 +403,13 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       $rootScope.makeRequest('POST', 'api/public/booking/update/' + bookingId, formData, function(response) {
 
         messageService.showMessage(response.data, $rootScope.closeMessage);
-        getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
+        getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+
+          filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+            populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+          });
+        });
         $scope.closeForm('displayBookingForm');
       });
     }
@@ -408,7 +442,5 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
       populateEventsArray(Calendar.Items, responseData, Calendar.Init);
     });
-
-    $('#newBookingForm, #displayBookingForm').draggable();
   });
 }]);
