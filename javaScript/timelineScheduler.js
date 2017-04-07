@@ -573,7 +573,9 @@ var TimeScheduler = {
                         .addClass('time-sch-item ' + (item.classes ? item.classes : ''))
                         .css({
                             top: calcTop,
-                            backgroundColor: item.projectColor,
+                            background: '-webkit-linear-gradient(top, #C1C1C1 -90%, '+item.projectColor+' 100%)',
+                            borderRadius: '5px',
+                            borderColor: item.projectColor,
                             left: calcLeft + '%',
                             width: calcWidth + '%'
                         })
