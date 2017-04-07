@@ -3,6 +3,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   var today = moment().startOf('day');
   $scope.creatingBooking = false;
   $scope.filterObj = {};
+  $scope.selectedPeriod = '3 days'; 
 
   function populateEventsArray(arrayToPopulate, dataArray, callBack) {
 
@@ -12,6 +13,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
       var bookingData = {
         id: booking.id,
+        title: booking.title,
         name: '<span class="booking_details">' + booking.title + '</span><span class="booking_details">' + booking.resource_name + '</span>',
         start: moment(booking.start_date),
         end: moment(booking.end_date),
@@ -26,7 +28,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         if($scope.projects[i].name === booking.project_name) {
 
-          bookingData.color = $scope.projects[i].colour_code;
+          bookingData.projectColor = $scope.projects[i].colour_code;
           bookingData.sectionID = $scope.projects[i].id;
         }
       }
@@ -114,11 +116,13 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     Sections: [],
 
     Init: function () {
+
+        TimeScheduler.Scope = $scope;
         TimeScheduler.Options.GetSections = Calendar.GetSections;
         TimeScheduler.Options.GetSchedule = Calendar.GetSchedule;
         TimeScheduler.Options.Start = today;
         TimeScheduler.Options.Periods = Calendar.Periods;
-        TimeScheduler.Options.SelectedPeriod = '3 days';
+        TimeScheduler.Options.SelectedPeriod = $scope.selectedPeriod;
         TimeScheduler.Options.Element = $('.calendar');
 
         TimeScheduler.Options.AllowDragging = true;
@@ -136,6 +140,27 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         TimeScheduler.Options.Text.PrevButton = '&nbsp;';
 
         TimeScheduler.Options.MaxHeight = 100;
+
+        TimeScheduler.test = function() {
+
+          var butn = document.createElement('button');
+          butn.classList.add('btn');
+          butn.classList.add('btn-default');
+          butn.innerHTML = 'Create Booking';
+
+          butn.addEventListener('click', function() {
+            $scope.bookingDates = {
+              startDate: moment.utc(moment(today)).format(),
+              endDate: moment.utc(moment(today).add(1, 'days')).format()
+            };
+            console.log($scope.bookingDates);
+            $scope.$apply(function() {
+
+              $scope.creatingBooking = true;
+            });
+          })
+          $('.time-sch-section.time-sch-section-header')[0].append(butn);
+        }
 
         TimeScheduler.Init();
     },
@@ -155,26 +180,53 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     },
 
     Item_Dragged: function (item, sectionID, start, end) {
+        
         var foundItem;
-
-        console.log(item);
-        console.log(sectionID);
-        console.log(start);
-        console.log(end);
 
         for (var i = 0; i < Calendar.Items.length; i++) {
             foundItem = Calendar.Items[i];
 
-            if (foundItem.id === item.id) {
+            if(foundItem.id === item.id) {
                 foundItem.sectionID = sectionID;
                 foundItem.start = start;
                 foundItem.end = end;
 
+                for(var p = 0; p < Calendar.Sections.length; p++) {
+
+                  if(Calendar.Sections[p].id === foundItem.sectionID) {
+
+                    foundItem.project_name = Calendar.Sections[p].name;
+                  }
+                }
+
                 Calendar.Items[i] = foundItem;
+
+                if(!confirm("The start date for " + item.title + " will be changed to: " + start.format('MMMM Do YYYY, h:mm a'))) {
+          
+                  TimeScheduler.Init();
+                }
+                else {
+
+                  $rootScope.makeRequest('PUT', 'api/public/booking/update/' + foundItem.id + '?start_date=' + moment.utc(moment(foundItem.start)).format() + '&end_date=' + moment.utc(moment(foundItem.end)).format() + '&project_name=' + foundItem.project_name, null, function(response) {
+
+                    messageService.showMessage(response.data, $rootScope.closeMessage);
+                    
+                    getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+
+                      filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+                        populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+                      });
+                    });
+                  });
+                }
             }
         }
 
-        TimeScheduler.Init();
+        getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(responseData) {
+
+          populateEventsArray(Calendar.Items, responseData, Calendar.Init);
+        });
     },
 
     Item_Resized: function (item, start, end) {
@@ -266,8 +318,8 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     var formData = new FormData();
 
-    formData.append('start_date', data.startDate);
-    formData.append('end_date', data.endDate);
+    formData.append('start_date', $scope.bookingDates.startDate);
+    formData.append('end_date', $scope.bookingDates.endDate);
     formData.append('title', $('#bookingTitle')[0].value);
     formData.append('notes', $('#bookingNotes')[0].value);
     formData.append('resource_name', $('#resourceName')[0].value);
@@ -276,8 +328,13 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     $rootScope.makeRequest('POST', 'api/public/booking', formData, function(response) {
 
       messageService.showMessage(response.data, $rootScope.closeMessage);
-      getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
-      // $scope.addBookingToCalendar('#resourceCalendar', formData, 'start_date=' + formData.get('start_date') + '&title=' + formData.get('title'));
+      getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+
+        filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+          populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+        });
+      });
     });
 
     $scope.closeForm('newBookingForm');
@@ -334,7 +391,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
       filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
 
-        populateEventsArray($scope.eventSources[0].events, resultArray);
+        populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
       });
     });
   }
@@ -353,18 +410,5 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     });
 
     $('#newBookingForm, #displayBookingForm').draggable();
-
-    $('.time-sch-section-container').click(function(ev) {
-
-      $scope.$apply(function() {
-
-        $scope.creatingBooking = true;
-      });
-      
-      $scope.bookingDates = {
-        startDate: moment.utc(moment(today)).format(),
-        endDate: moment.utc(moment(today).add(1, 'days')).format()
-      };
-    });
   });
 }]);

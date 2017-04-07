@@ -10,10 +10,7 @@
     "grunt-contrib-sass": "^1.0.0",
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-contrib-connect": "^1.0.2",
     "grunt-sass": "^1.2.1"
   },
-  "dependencies": {
-    "angular-ui-calendar": "^1.0.2"
-  }
+  "dependencies": {}
 }

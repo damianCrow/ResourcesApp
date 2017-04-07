@@ -266,6 +266,7 @@ var TimeScheduler = {
         
         TimeScheduler.CreateCalendar();
         TimeScheduler.FillSections(overrideCache);
+        TimeScheduler.test();
     },
 
     GetSelectedPeriod: function () {
@@ -572,6 +573,7 @@ var TimeScheduler = {
                         .addClass('time-sch-item ' + (item.classes ? item.classes : ''))
                         .css({
                             top: calcTop,
+                            backgroundColor: item.projectColor,
                             left: calcLeft + '%',
                             width: calcWidth + '%'
                         })
@@ -1093,6 +1095,7 @@ var TimeScheduler = {
     /* Selects the period with the given name */
     SelectPeriod: function (name) {
         TimeScheduler.Options.SelectedPeriod = name;
+        TimeScheduler.Scope.selectedPeriod = name;
         TimeScheduler.Init();
     },
 
