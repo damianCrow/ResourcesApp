@@ -25,11 +25,18 @@ app.service('getInfoService', ['$rootScope', '$http', function($rootScope, $http
       });
     },
 
-    getProjects: function(callBack) {
+    getProjects: function(callBack, callBack2) {
 
       $rootScope.makeRequest('GET', 'api/public/project', null, function(response) {
 
-        callBack(response);
+        if(callBack2) {
+
+          callBack2(response, callBack2);
+        }
+        else {
+
+          callBack(response);
+        }
       });
     },
 

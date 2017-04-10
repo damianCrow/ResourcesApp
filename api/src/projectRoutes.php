@@ -31,3 +31,47 @@ $app->get('/project', function ($request, $response, $args) {
 
 	$dbconn->close();
 });
+
+$app->post('/project', function ($request, $response, $args) {
+
+	require_once('database_connection.php');
+
+	$data = $request->getParsedBody();
+
+	$name = json_encode($data["name"]);
+	$color = json_encode($data["color"]);
+	
+
+	$query = "INSERT INTO projects VALUES (NULL, $name, NULL, $color)";
+
+	if($dbconn->query($query)) {
+
+		return $response->getBody()->write('Project saved successfully.');
+	}
+	else {
+
+		return $response->getBody()->write('Error! '. $dbconn->error);
+	}
+
+	$dbconn->close();
+});
+
+$app->delete('/project/{id}', function($request, $response, $args) {
+
+	require_once('database_connection.php');
+
+	$id = $args['id'];
+
+	$query = "DELETE FROM projects WHERE id = $id";
+
+	if($dbconn->query($query)) {
+
+		$response->getBody()->write('Project successfully deleted.');
+	}
+	else {
+
+		$response->getBody()->write('Error! '. $dbconn->error);
+	}
+
+	$dbconn->close();
+});

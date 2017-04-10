@@ -246,7 +246,6 @@ var TimeScheduler = {
     /* This should be used to recreate the scheduler with new defaults or refill items */
     Init: function (overrideCache) {
         TimeScheduler.SetupPrototypes();
-
         TimeScheduler.Options.Start = moment(TimeScheduler.Options.Start);
 
         TimeScheduler.Options.Element.find('.ui-draggable').draggable('destroy');
@@ -266,7 +265,30 @@ var TimeScheduler = {
         
         TimeScheduler.CreateCalendar();
         TimeScheduler.FillSections(overrideCache);
-        TimeScheduler.test();
+        TimeScheduler.createAppendElement('button', ['btn', 'btn-primary'], 'New Booking', $('.time-sch-section.time-sch-section-header')[0], function() {
+
+            TimeScheduler.Scope.bookingDates = {
+              startDate: moment.utc(moment(moment().startOf('day'))).format(),
+              endDate: moment.utc(moment(moment().startOf('day')).add(1, 'days')).format()
+            };
+
+            TimeScheduler.Scope.$apply(function() {
+
+              TimeScheduler.Scope.showBookingData = false;
+              TimeScheduler.Scope.creatingProject = false;
+              TimeScheduler.Scope.creatingBooking = true;
+            });
+        });
+
+        TimeScheduler.createAppendElement('button', ['btn', 'btn-info'], 'New Project', $('.time-sch-section.time-sch-section-header')[1], function() {
+
+            TimeScheduler.Scope.$apply(function() {
+
+              TimeScheduler.Scope.showBookingData = false;
+              TimeScheduler.Scope.creatingBooking = false;
+              TimeScheduler.Scope.creatingProject = true;
+            });
+        });
     },
 
     GetSelectedPeriod: function () {
@@ -482,7 +504,20 @@ var TimeScheduler = {
                 .addClass('time-sch-section time-sch-section-content')
                 .data('section', sections[i])
                 .append(sections[i].name)
+                .css({color: sections[i].color})
                 .appendTo(tr);
+
+                TimeScheduler.elementClick(td, sections[i], function(ev, elemDataObj) {
+
+                  TimeScheduler.Scope.$apply(function() {
+
+                    TimeScheduler.Scope.projectDataToDisplay = elemDataObj;
+                    TimeScheduler.Scope.showBookingData = false;
+                    TimeScheduler.Scope.creatingProject = false;
+                    TimeScheduler.Scope.creatingBooking = false;
+                    TimeScheduler.Scope.showProjectData = true;
+                  });
+                });
 
             for (time = 0; time < timeCount; time++) {
                 td = $(document.createElement('td'))
@@ -505,6 +540,14 @@ var TimeScheduler = {
         if (TimeScheduler.Options.ShowCurrentTime) {
             TimeScheduler.ShowCurrentTime();
         }
+    },
+
+    elementClick: function(elem, elemDataObj, callBack) {
+
+      elem.click(function(ev) {
+
+        callBack(ev, elemDataObj);
+      });
     },
 
     ShowCurrentTimeHandle: null,

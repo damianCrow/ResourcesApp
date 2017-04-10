@@ -2,10 +2,10 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
   var today = moment().startOf('day');
   $scope.creatingBooking = false;
+  $scope.creatingProject = false;
   $scope.showBookingData = false;
   $scope.filterObj = {};
   $scope.selectedPeriod = '3 days'; 
-  $('#newBookingForm, #displayBookingForm').draggable();
 
   function populateEventsArray(arrayToPopulate, dataArray, callBack) {
 
@@ -103,17 +103,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         }
     ],
 
-    Items: [
-       
-        {
-            id: 22,
-            name: '<div>Item 3</div>',
-            start: moment('2017-04-06T00:00:00.000Z'),
-            end: moment('2017-04-07T00:29:40.276Z'),
-            sectionID: 1,
-            classes: 'item-status-three'
-        }
-    ],
+    Items: [],
 
     Sections: [],
 
@@ -143,32 +133,31 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         TimeScheduler.Options.MaxHeight = 100;
 
-        TimeScheduler.test = function() {
+        TimeScheduler.createAppendElement = function(elem, classes, elemTxt, parent, callBack) {
 
-          var butn = document.createElement('button');
-          butn.classList.add('btn');
-          butn.classList.add('btn-default');
-          butn.innerHTML = 'Create Booking';
+          var ele = document.createElement(elem);
 
-          butn.addEventListener('click', function() {
-            $scope.bookingDates = {
-              startDate: moment.utc(moment(today)).format(),
-              endDate: moment.utc(moment(today).add(1, 'days')).format()
-            };
-            console.log($scope.bookingDates);
-            $scope.$apply(function() {
+          classes.forEach(function(clas) {
 
-              $scope.creatingBooking = true;
-            });
+            ele.classList.add(clas);
+          });
+          
+          ele.innerHTML = elemTxt;
+
+          ele.addEventListener('click', function() {
+
+            callBack();
           })
-          $('.time-sch-section.time-sch-section-header')[0].append(butn);
+
+          parent.append(ele);
         }
 
         TimeScheduler.Init();
     },
 
     GetSections: function (callback) {
-        callback(Calendar.Sections);
+      
+      callback(Calendar.Sections);
     },
 
     GetSchedule: function (callback, start, end) {
@@ -296,7 +285,9 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     }
   };
 
-  getInfoService.getProjects(function(response) {
+  getInfoService.getProjects(popuplateSectionsArray);
+
+  function popuplateSectionsArray(response, callBack) {
 
     $scope.projects = response.data;
 
@@ -304,19 +295,23 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
       var itemObj = {
         id: item.id,
-        name: item.name
+        name: item.name,
+        color: item.colour_code
       }
 
       Calendar.Sections.push(itemObj);
     });
 
-    // getInfoService.getBookings($scope.eventSources[0].events, populateEventsArray);
-
     getInfoService.getResources(function(response) {
 
       $scope.resources = response.data;
+
+      if(callBack) {
+
+        callBack();
+      }
     });
-  });
+  }
 
   $scope.closeForm = function(formWrapperId) {
 
@@ -333,6 +328,19 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     if(formWrapperId === 'displayBookingForm') {
 
       $scope.showBookingData = false;
+    }
+
+    if(formWrapperId === 'newProjectForm') {
+
+      $('#newProjectName')[0].value = '';
+      $('#projectColorCode')[0].value = '#000000';
+
+      $scope.creatingProject = false;
+    }
+
+    if(formWrapperId === 'editProjectForm') {
+
+      $scope.showProjectData = false;
     }
   }
 
@@ -412,6 +420,43 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         });
         $scope.closeForm('displayBookingForm');
       });
+    }
+  }
+
+  $scope.saveProject = function() {
+
+    var formData = new FormData();
+
+    
+    formData.append('name', $('#newProjectName')[0].value);
+    formData.append('color', $('#projectColorCode')[0].value);
+
+    $rootScope.makeRequest('POST', 'api/public/project', formData, function(response) {
+
+      messageService.showMessage(response.data, $rootScope.closeMessage);
+      
+      getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
+    });
+
+    $scope.closeForm('newProjectForm');
+  }
+
+  $scope.deleteProject = function(projectId) {
+
+    if(!confirm("Are you sure you want to DELETE " + $scope.projectDataToDisplay.name + "?")) {
+          
+      $scope.closeForm('editProjectForm');
+    }
+    else {
+
+      $rootScope.makeRequest('DELETE', 'api/public/project/' + projectId, null, function(response) {
+
+        messageService.showMessage(response.data, $rootScope.closeMessage);
+       
+        getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
+      });
+
+      $scope.closeForm('editProjectForm');
     }
   }
 

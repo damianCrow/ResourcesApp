@@ -14,11 +14,11 @@ html, body, #view {
 }
 
 .booking_form {
-	z-index: 10;
+  z-index: 2;
   background-color: $gtb_blue;
   padding: 25px;
   border-radius: 5px;
-  width: 400px;
+  width: 350px;
 
   &.view_booking {
   	background-color: $happy_green;

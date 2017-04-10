@@ -73,7 +73,9 @@
 .time-sch-section-content {
   vertical-align: middle;
   text-align: center;
-  overflow: hidden; }
+  overflow: hidden; 
+  cursor: pointer;
+  font-weight: bold;}
 
 .time-sch-section-wrapper {
   position: absolute;
