@@ -31,7 +31,7 @@ app.service('getInfoService', ['$rootScope', '$http', function($rootScope, $http
 
         if(callBack2) {
 
-          callBack2(response, callBack2);
+          callBack(response, callBack2);
         }
         else {
 

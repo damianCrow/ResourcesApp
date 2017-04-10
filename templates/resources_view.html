@@ -113,16 +113,16 @@
 	<div name="editProjectForm" id="editProjectForm" class="center_vertically booking_form view_booking" ng-show="showProjectData">
 	  <form>
 
-	  	<h5>Create new project</h5>
+	  	<h5>Edit project</h5>
 
 	    <div class="form-group">
-	      <label for="editProjectName">Project Name:</label>
-	      <input type="text" class="form-control" id="editProjectName" value="{{projectDataToDisplay.name}}" required>
+	      <label for="projectEditName">Project Name:</label>
+	      <input type="text" class="form-control" id="projectEditName" value="{{projectDataToDisplay.name}}" required>
 	    </div>
 
 	    <div class="form-group">
-	      <label for="editProjectColorCode">Select Project Color:</label>
-	      <input type="color" class="form-control input-lg" id="editProjectColorCode" style="height: 40px;" value="{{projectDataToDisplay.color}}"></input>
+	      <label for="projectEditColorCode">Select Project Color:</label>
+	      <input type="color" class="form-control input-lg" id="projectEditColorCode" style="height: 40px;" value="{{projectDataToDisplay.color}}"></input>
 	    </div>
 
 	    <button class="btn btn-warning" ng-click="closeForm('editProjectForm')">Close</button>

@@ -155,7 +155,7 @@ $app->post('/booking/update/{id}', function($request, $response, $args) {
 
 	if($dbconn->query($query)) {
 
-		$response->getBody()->write('Booking successfully details updated.');
+		$response->getBody()->write('Booking details successfully updated.');
 	}
 	else {
 

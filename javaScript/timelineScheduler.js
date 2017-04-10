@@ -246,6 +246,7 @@ var TimeScheduler = {
     /* This should be used to recreate the scheduler with new defaults or refill items */
     Init: function (overrideCache) {
         TimeScheduler.SetupPrototypes();
+
         TimeScheduler.Options.Start = moment(TimeScheduler.Options.Start);
 
         TimeScheduler.Options.Element.find('.ui-draggable').draggable('destroy');
@@ -1110,13 +1111,15 @@ var TimeScheduler = {
                     $(this).remove();
                 },
                 onSelect: function (date) {
-                    TimeScheduler.Options.Start = moment(date);
+
+                    TimeScheduler.Options.Start = moment(date).utc();
                     TimeScheduler.Init();
                 },
                 defaultDate: TimeScheduler.Options.Start.toDate()
             })
             .datepicker('show')
             .hide();
+console.log(TimeScheduler.Options.Start);
     },
     TimeShift_Clicked: function (event) {
         var period;
@@ -1133,7 +1136,7 @@ var TimeScheduler = {
         else if ($(this).is('.time-sch-time-button-next')) {
             TimeScheduler.Options.Start.tsAdd('minutes', period.TimeframeOverall);
         }
-
+console.log(TimeScheduler.Options.Start);
         TimeScheduler.Init();
     },
 

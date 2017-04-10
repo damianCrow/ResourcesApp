@@ -290,6 +290,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   function popuplateSectionsArray(response, callBack) {
 
     $scope.projects = response.data;
+    Calendar.Sections.splice(0, Calendar.Sections.length);
 
     angular.forEach(response.data, function(item) {
 
@@ -439,6 +440,28 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     });
 
     $scope.closeForm('newProjectForm');
+  }
+
+  $scope.updateProject = function(projectId) {
+  
+    if(!confirm("Are you sure you want to UPDATE " + $scope.projectDataToDisplay.name + "?")) {
+          
+      $scope.closeForm('editProjectForm');
+    }
+    else {
+
+      var formData = new FormData();
+
+      formData.append('name', $('#projectEditName')[0].value);
+      formData.append('color', $('#projectEditColorCode')[0].value);
+
+      $rootScope.makeRequest('POST', 'api/public/project/update/' + projectId, formData, function(response) {
+        
+        messageService.showMessage(response.data, $rootScope.closeMessage);
+        getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
+        $scope.closeForm('editProjectForm');
+      });
+    }
   }
 
   $scope.deleteProject = function(projectId) {
