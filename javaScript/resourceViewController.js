@@ -1,6 +1,7 @@
 app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getInfoService', 'filterService', 'messageService', '$timeout', function($scope, $http, $rootScope, getInfoService, filterService, messageService, $timeout) {
 
   var today = moment().startOf('day');
+  $scope.startDay = moment(today);
   $scope.creatingBooking = false;
   $scope.creatingProject = false;
   $scope.showBookingData = false;
@@ -112,7 +113,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         TimeScheduler.Scope = $scope;
         TimeScheduler.Options.GetSections = Calendar.GetSections;
         TimeScheduler.Options.GetSchedule = Calendar.GetSchedule;
-        TimeScheduler.Options.Start = today;
+        TimeScheduler.Options.Start = $scope.startDay;
         TimeScheduler.Options.Periods = Calendar.Periods;
         TimeScheduler.Options.SelectedPeriod = $scope.selectedPeriod;
         TimeScheduler.Options.Element = $('.calendar');
@@ -132,6 +133,17 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         TimeScheduler.Options.Text.PrevButton = '&nbsp;';
 
         TimeScheduler.Options.MaxHeight = 100;
+
+        TimeScheduler.updateStart = function(newStartDate) {
+
+          $scope.$apply(function() {
+
+            $scope.bookingsStartDate = newStartDate.format();
+          });
+
+          $scope.startDay = newStartDate.format();
+          $scope.getBookings(populateEventsArray);
+        }
 
         TimeScheduler.createAppendElement = function(elem, classes, elemTxt, parent, callBack) {
 
@@ -297,7 +309,8 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       var itemObj = {
         id: item.id,
         name: item.name,
-        color: item.colour_code
+        color: item.colour_code,
+        notes: item.notes
       }
 
       Calendar.Sections.push(itemObj);
@@ -314,7 +327,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     });
   }
 
-  $scope.closeForm = function(formWrapperId) {
+  function closeForm(formWrapperId) {
 
     if(formWrapperId === 'newBookingForm') {
 
@@ -345,12 +358,20 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     }
   }
 
+  $scope.closeForm = closeForm;
+
   $scope.addBookingToDb = function(data) {
+
+    if($scope.bookingsStartDate <= moment(today).add(-1, 'days').format()) {
+
+      $scope.closeForm('newBookingForm');
+      return messageService.showMessage('You cannot create a booking in the past!', $rootScope.closeMessage);
+    }
 
     var formData = new FormData();
 
-    formData.append('start_date', $scope.bookingDates.startDate);
-    formData.append('end_date', $scope.bookingDates.endDate);
+    formData.append('start_date', $scope.bookingsStartDate);
+    formData.append('end_date', moment.utc(moment($scope.bookingsStartDate).add(1, 'days')).format());
     formData.append('title', $('#bookingTitle')[0].value);
     formData.append('notes', $('#bookingNotes')[0].value);
     formData.append('resource_name', $('#resourceName')[0].value);
@@ -373,15 +394,12 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
   $scope.deleteBooking = function(bookingId) {
 
-    if(!confirm("Are you sure you want to DELETE " + $scope.bookingToDisplay.title + "?")) {
-          
-      $scope.closeForm('displayBookingForm');
-    }
-    else {
-
+    messageService.showConfirm("Are you sure you want to DELETE " + $scope.bookingToDisplay.title + "?", function() {
+      
       $rootScope.makeRequest('DELETE', 'api/public/booking/' + bookingId, null, function(response) {
 
         messageService.showMessage(response.data, $rootScope.closeMessage);
+
         getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
           filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
@@ -389,18 +407,15 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
             populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
           });
         });
-        $scope.closeForm('displayBookingForm');
       });
-    }
+    });
+
+    $scope.closeForm('displayBookingForm');
   }
 
   $scope.updateBooking = function(bookingId) {
   
-    if(!confirm("Are you sure you want to UPDATE " + $scope.bookingToDisplay.title + "?")) {
-          
-      $scope.closeForm('displayBookingForm');
-    }
-    else {
+    messageService.showConfirm("Are you sure you want to UPDATE " + $scope.bookingToDisplay.title + "?", function() {
 
       var formData = new FormData();
 
@@ -412,6 +427,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       $rootScope.makeRequest('POST', 'api/public/booking/update/' + bookingId, formData, function(response) {
 
         messageService.showMessage(response.data, $rootScope.closeMessage);
+
         getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
           filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
@@ -419,18 +435,19 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
             populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
           });
         });
-        $scope.closeForm('displayBookingForm');
       });
-    }
+    });
+
+    $scope.closeForm('displayBookingForm');
   }
 
   $scope.saveProject = function() {
 
     var formData = new FormData();
-
     
     formData.append('name', $('#newProjectName')[0].value);
     formData.append('color', $('#projectColorCode')[0].value);
+    formData.append('notes', $('#projectNotes')[0].value);
 
     $rootScope.makeRequest('POST', 'api/public/project', formData, function(response) {
 
@@ -444,33 +461,27 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
   $scope.updateProject = function(projectId) {
   
-    if(!confirm("Are you sure you want to UPDATE " + $scope.projectDataToDisplay.name + "?")) {
-          
-      $scope.closeForm('editProjectForm');
-    }
-    else {
+    messageService.showConfirm("Are you sure you want to UPDATE " + $scope.projectDataToDisplay.name + "?", function() {
 
       var formData = new FormData();
 
       formData.append('name', $('#projectEditName')[0].value);
       formData.append('color', $('#projectEditColorCode')[0].value);
+      formData.append('notes', $('#projectEditNotes')[0].value);
 
       $rootScope.makeRequest('POST', 'api/public/project/update/' + projectId, formData, function(response) {
         
         messageService.showMessage(response.data, $rootScope.closeMessage);
-        getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
-        $scope.closeForm('editProjectForm');
+        getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init); 
       });
-    }
+    });
+
+    $scope.closeForm('editProjectForm');
   }
 
   $scope.deleteProject = function(projectId) {
 
-    if(!confirm("Are you sure you want to DELETE " + $scope.projectDataToDisplay.name + "?")) {
-          
-      $scope.closeForm('editProjectForm');
-    }
-    else {
+    messageService.showConfirm("Are you sure you want to DELETE " + $scope.projectDataToDisplay.name + "?", function() {
 
       $rootScope.makeRequest('DELETE', 'api/public/project/' + projectId, null, function(response) {
 
@@ -478,9 +489,9 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
        
         getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
       });
+    }); 
 
-      $scope.closeForm('editProjectForm');
-    }
+    $scope.closeForm('editProjectForm');
   }
 
   $scope.filterMethod = function(selectValue, filterKey) {
@@ -498,17 +509,24 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     });
   }
 
+  $scope.getBookings = function(callBack) {
+
+    $scope.bookingsEndDate = moment($scope.bookingsStartDate).add(37, 'days').format();
+
+    $scope.bookingsForThisMonthQuery = 'start_date=' + $scope.bookingsStartDate + '&end_date=' + $scope.bookingsEndDate;
+
+    getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+
+      filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+         callBack(Calendar.Items, resultArray, Calendar.Init);
+      });
+    });
+  }
+
   angular.element(document).ready(function() {
 
-    var thisYear = new Date().getFullYear();
-    var thisMonth = new Date().getMonth() + 1; // + 1 starts the month array at 1 instead of 0.
-    var monthLength = new Date(thisYear, thisMonth, 0).getDate();
-
-    $scope.bookingsForThisMonthQuery = 'start_date=' + moment.utc(moment(today).add(-1, 'days')).format() + '&end_date=' + moment.utc(moment(today).add(parseInt(monthLength), 'days')).format();
-    
-    getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(responseData) {
-
-      populateEventsArray(Calendar.Items, responseData, Calendar.Init);
-    });
+    $scope.bookingsStartDate = moment.utc(moment(today)).format();
+    $scope.getBookings(populateEventsArray);
   });
 }]);

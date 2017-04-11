@@ -40,9 +40,9 @@ $app->post('/project', function ($request, $response, $args) {
 
 	$name = json_encode($data["name"]);
 	$color = json_encode($data["color"]);
-	
+	$notes = json_encode($data["notes"]);
 
-	$query = "INSERT INTO projects VALUES (NULL, $name, NULL, $color)";
+	$query = "INSERT INTO projects VALUES (NULL, $name, NULL, $color, $notes)";
 
 	if($dbconn->query($query)) {
 
@@ -103,6 +103,7 @@ $app->post('/project/update/{id}', function($request, $response, $args) {
 
 	$name = json_encode($data["name"]);
 	$color = json_encode($data["color"]);
+	$notes = json_encode($data["notes"]);
 
 	$query = "SELECT name FROM projects WHERE id = $id";
 
@@ -122,7 +123,7 @@ $app->post('/project/update/{id}', function($request, $response, $args) {
 		$query2 = "";
 	}
 
-	$query3 = "UPDATE projects SET name = $name, colour_code = $color WHERE id = $id";
+	$query3 = "UPDATE projects SET name = $name, colour_code = $color, notes = $notes WHERE id = $id";
 
 	if($dbconn->query($query2) && $dbconn->query($query3)) {
 

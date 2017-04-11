@@ -268,11 +268,6 @@ var TimeScheduler = {
         TimeScheduler.FillSections(overrideCache);
         TimeScheduler.createAppendElement('button', ['btn', 'btn-primary'], 'New Booking', $('.time-sch-section.time-sch-section-header')[0], function() {
 
-            TimeScheduler.Scope.bookingDates = {
-              startDate: moment.utc(moment(moment().startOf('day'))).format(),
-              endDate: moment.utc(moment(moment().startOf('day')).add(1, 'days')).format()
-            };
-
             TimeScheduler.Scope.$apply(function() {
 
               TimeScheduler.Scope.showBookingData = false;
@@ -1114,12 +1109,12 @@ var TimeScheduler = {
 
                     TimeScheduler.Options.Start = moment(date).utc();
                     TimeScheduler.Init();
+                    TimeScheduler.updateStart(TimeScheduler.Options.Start);
                 },
                 defaultDate: TimeScheduler.Options.Start.toDate()
             })
             .datepicker('show')
             .hide();
-console.log(TimeScheduler.Options.Start);
     },
     TimeShift_Clicked: function (event) {
         var period;
@@ -1136,8 +1131,9 @@ console.log(TimeScheduler.Options.Start);
         else if ($(this).is('.time-sch-time-button-next')) {
             TimeScheduler.Options.Start.tsAdd('minutes', period.TimeframeOverall);
         }
-console.log(TimeScheduler.Options.Start);
+
         TimeScheduler.Init();
+        TimeScheduler.updateStart(TimeScheduler.Options.Start);
     },
 
     /* Selects the period with the given name */

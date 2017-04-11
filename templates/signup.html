@@ -1,0 +1,50 @@
+<div class="col-md-10 offset-md-1 center_vertically" ng-controller="signUpController">
+ 
+  <h2> Sign Into Resources </h2>
+  
+  <form>
+
+    <div class="form-group">
+      <label for="firstName"> Enter First Name </label>
+      <input id="firstName" class="form-control" type="text" name="firstName" required>
+    </div>
+
+    <div class="form-group">
+      <label for="lastName"> Enter Last Name </label>
+      <input id="lastName" class="form-control" type="text" name="lastName" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email"> Enter Email Address </label>
+      <input type="email" id="email" class="form-control" name="email" required ng-pattern = '/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i'>
+    </div>
+
+    <div class="form-group">
+      <label for="resourceType">Select Resource Type:</label>
+      <select class="form-control" id="resourceType">
+        <option value="">-- Please select a resource type: --</option>
+        <option ng-repeat="resource in resourceTypes" value="{{resource}}">{{resource}}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="password"> Enter Password </label>
+      <input id="password" class="form-control" type="password" name="password" required>
+    </div>
+
+    <div class="form-group">
+      <label for="admin"> Make Admin User </label>
+      <input type="checkbox" id="admin" class="form-control" name="admin">
+    </div>
+
+    <div class="form-group">
+      <label for="bookable"> Make User Bookable </label>
+      <input type="checkbox" id="bookable" class="form-control" name="bookable" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary" ng-click="test()"> Submit </button>
+    <input type="hidden" name="_token" value="">
+
+  </form>
+  
+</div>

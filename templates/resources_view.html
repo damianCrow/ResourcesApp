@@ -12,7 +12,7 @@
 		<label for="resourceFilter">Filter by resource:</label>
 		<select class="col-md-6" id="resourceFilter" ng-model="resourceFilter" name="resourceFilter" ng-change="filterMethod(resourceFilter, 'resource_name')">
 			<option value="">None selected</option>
-		  <option ng-repeat="resource in resources" value="{{resource.first_name}} {{resource.last_name}}">{{resource.first_name}} {{resource.last_name}}</option>
+		  <option ng-repeat="resource in resources" value="{{resource.first_name}} {{resource.last_name}}" ng-disabled="resource.bookable === '0'">{{resource.first_name}} {{resource.last_name}}</option>
 		</select>
 	</div>
 
@@ -38,7 +38,7 @@
 	      <label for="resourceName">Select Resource:</label>
 	      <select class="form-control" id="resourceName" required>
 	        <option value="">-- Please select a resource: --</option>
-	        <option ng-repeat="resource in resources" value="{{resource.first_name}} {{resource.last_name}}">{{resource.first_name}} {{resource.last_name}}</option>
+	        <option ng-repeat="resource in resources" value="{{resource.first_name}} {{resource.last_name}}" ng-disabled="resource.bookable === '0'">{{resource.first_name}} {{resource.last_name}} </option>
 	      </select>
 	    </div>
 
@@ -73,7 +73,7 @@
 	    <div class="form-group">
 	      <label for="editResourceName">Select Resource:</label>
 	      <select class="form-control" id="editResourceName" value="{{bookingToDisplay.resource_name}}" required>
-	       <option ng-repeat="resource in resources" ng-selected="resource.first_name +' '+ resource.last_name === bookingToDisplay.resource_name" value="{{resource.first_name}} {{resource.last_name}}">{{resource.first_name}} {{resource.last_name}}</option>
+	       <option ng-repeat="resource in resources" ng-selected="resource.first_name +' '+ resource.last_name === bookingToDisplay.resource_name" value="{{resource.first_name}} {{resource.last_name}}" ng-disabled="resource.bookable === '0'">{{resource.first_name}} {{resource.last_name}}</option>
 	      </select>
 	    </div>
 
@@ -93,7 +93,7 @@
 	<div name="newProjectForm" id="newProjectForm" class="center_vertically booking_form" ng-show="creatingProject">
 	  <form>
 
-	  	<h5>Edit project</h5>
+	  	<h5>New project</h5>
 
 	    <div class="form-group">
 	      <label for="newProjectName">Project Name:</label>
@@ -103,6 +103,11 @@
 	    <div class="form-group">
 	      <label for="projectColorCode">Select Project Color:</label>
 	      <input type="color" class="form-control input-lg" id="projectColorCode" style="height: 40px;"></input>
+	    </div>
+
+	     <div class="form-group">
+	      <label for="projectNotes">Project Notes:</label>
+	      <textarea class="form-control" id="projectNotes"></textarea>
 	    </div>
 
 	    <button class="btn btn-warning" ng-click="closeForm('newProjectForm')">Close</button>
@@ -123,6 +128,11 @@
 	    <div class="form-group">
 	      <label for="projectEditColorCode">Select Project Color:</label>
 	      <input type="color" class="form-control input-lg" id="projectEditColorCode" style="height: 40px;" value="{{projectDataToDisplay.color}}"></input>
+	    </div>
+
+	    <div class="form-group">
+	      <label for="projectEditNotes">Project Notes:</label>
+	      <textarea class="form-control" id="projectEditNotes" value="{{projectDataToDisplay.notes}}">{{projectDataToDisplay.notes}}</textarea>
 	    </div>
 
 	    <button class="btn btn-warning" ng-click="closeForm('editProjectForm')">Close</button>
