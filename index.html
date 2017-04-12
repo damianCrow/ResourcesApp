@@ -30,19 +30,20 @@
 
 	<body ng-app="resourcesApp" class="" ng-controller="mainController">
 
-		<nav class="navbar navbar-inverse bg-inverse navbar-toggleable">
+		<nav class="navbar navbar-inverse bg-inverse navbar-toggleable" ng-controller="navController">
   		<div class="collapse navbar-collapse">
 		    
 		    <a class="navbar-brand" ng-href="#"> Resources </a>
 		    
-		    <ul class="navbar-nav nav" ng-controller="navController">
+		    <ul class="navbar-nav nav" ng-hide="!isLoggedIn()">
 		      <li class="nav-item" ng-class="{ active: isActive('/')}"><a class="nav-link" ng-href="#/">Home</a></li>
 		      <li class="nav-item" ng-class="{ active: isActive('/bookings')}" ng-hide=""><a class="nav-link" ng-href="#!/bookings">Bookings Calendar</a></li>
 		      <li class="nav-item" ng-class="{ active: isActive('/resources')}" ng-hide=""><a class="nav-link" ng-href="#!/resources">Resources</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/signup')}" ng-disabled="isLoggedIn() && !isAdmin()"><a class="nav-link" ng-href="#!/signup">Sign Up</a></li>
 		    </ul>
 		  </div>
 
-		  <button class="btn btn-info" ng-click="">Log out</button>
+		  <button class="btn btn-info" ng-click="logOut()">Log out</button>
 		</nav>
 
 		<div id="view" ng-view class="container">

@@ -7,7 +7,7 @@ app.service('messageService', ['$timeout', '$rootScope', function($timeout, $roo
 			$timeout(function() {
 
 				callBack();
-			}, 1500)
+			}, 2000)
 
 			return $('body').append('<div class="alert alert-info custom_alert"><h6>' + message + '</h6></div>');
 		},

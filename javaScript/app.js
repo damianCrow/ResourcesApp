@@ -1,15 +1,33 @@
 var app = angular.module('resourcesApp', ['ngRoute']);
 
-app.config(["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
+app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
-	$routeProvider.when('/', {templateUrl: 'templates/home.html'});
   $routeProvider.when('/login', {templateUrl: 'templates/login.html'});
-  $routeProvider.when('/bookings', {templateUrl: 'templates/resources_view.html'});
-  $routeProvider.when('/resources', {templateUrl: 'templates/resources.html'});
-  $routeProvider.when('/signup', {templateUrl: 'templates/signup.html'});
-  $routeProvider.otherwise({redirectTo: '/'});
 
-  if(window.history && window.history.pushState){
+	$routeProvider.when('/', {templateUrl: 'templates/home.html', resolve: {
+
+      auth: ['authService', function(authService) { return authService.userLoggedIn();}]
+    }
+  });
+  $routeProvider.when('/bookings', {templateUrl: 'templates/resources_view.html', resolve: {
+
+      auth: ['authService', function(authService) { return authService.isAdminUser();}]
+    }
+  });
+  $routeProvider.when('/resources', {templateUrl: 'templates/resources.html', resolve: {
+
+      auth: ['authService', function(authService) { return authService.isAdminUser();}]
+    }
+  });
+  $routeProvider.when('/signup', {templateUrl: 'templates/signup.html', resolve: {
+
+      auth: ['authService', function(authService) { return authService.isAdminUser();}]
+    }
+  });
+
+  $routeProvider.otherwise({redirectTo: '/login'});
+
+  if(window.history && window.history.pushState) {
 
     // $locationProvider.html5Mode({
     //   enabled: true,
@@ -17,4 +35,15 @@ app.config(["$routeProvider", "$locationProvider", function ($routeProvider, $lo
     //   rewriteLinks: true
     // }).hashPrefix('!');
   }
+}]);
+
+app.run(['$rootScope', 'authService', '$location', function($rootScope, authService, $location) {
+
+  $rootScope.$on('$routeChangeError', function(event, current, previous, rejection) {
+
+    if(rejection) {
+
+      $location.path('/login');
+    } 
+  });
 }]);

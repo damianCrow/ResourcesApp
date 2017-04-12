@@ -2,19 +2,19 @@
  
 	<h2> Sign Into Resources </h2>
   
-  <form>
+  <form ng-model="logInForm" name="logInForm" ng-submit="login()">
 
     <div class="form-group">
-      <label for="username"> Enter Username </label>
-      <input id="username" class="form-control" type="text" name="username" value="">
+      <label for="logInEmail"> Enter Email </label>
+      <input ng-model="logInForm.email" id="logInEmail" class="form-control" type="email" name="logInEmail" required>
     </div>
 
     <div class="form-group">
-      <label for="password"> Enter Password </label>
-      <input id="password" class="form-control" type="password" name="password" value="">
+      <label for="logInPassword"> Enter Password </label>
+      <input ng-model="logInForm.password" id="logInPassword" class="form-control" type="password" name="logInPassword" required>
     </div>
 
-    <button type="submit" class="btn btn-primary" ng-click="test()"> Submit </button>
+    <button type="submit" class="btn btn-primary"> Submit </button>
     <input type="hidden" name="_token" value="">
 
   </form>

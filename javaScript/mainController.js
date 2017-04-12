@@ -1,6 +1,6 @@
-app.controller('mainController', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('mainController', ['$scope', '$http', '$rootScope', '$location', function($scope, $http, $rootScope, $location) {
 
-  $rootScope.makeRequest = function(reqMethod, endPoint, reqData, successCallback) {
+  $rootScope.makeRequest = function(reqMethod, endPoint, reqData, successCallback, errorCallback) {
     
     if(!reqData) {
 
@@ -19,12 +19,20 @@ app.controller('mainController', ['$scope', '$http', '$rootScope', function($sco
     }, 
     function error(response) {
 
-     console.log(response);
+      if(errorCallback) {
+
+        errorCallback(response);
+      }
     });
   }
 
   $rootScope.closeMessage = function() {
  
     $('.custom_alert').remove();
+  }
+
+  $rootScope.redirect = function(newPath) {
+ 
+   return $location.path(newPath);
   }
 }]);
