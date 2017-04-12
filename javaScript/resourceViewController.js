@@ -45,17 +45,6 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     }
   }
 
-  function findBooking(bookingId) {
-
-    for(var i = 0; i < $scope.eventSources[0].events.length; i++) {
-     
-      if(parseInt(bookingId) === parseInt($scope.eventSources[0].events[i].id)) {
-
-       return $scope.eventSources[0].events[i];
-      }
-    }
-  }
-
   var Calendar = {
     Periods: [
         {

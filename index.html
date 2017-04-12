@@ -35,11 +35,11 @@
 		    
 		    <a class="navbar-brand" ng-href="#"> Resources </a>
 		    
-		    <ul class="navbar-nav nav" ng-hide="!isLoggedIn()">
+		    <ul class="navbar-nav nav">
 		      <li class="nav-item" ng-class="{ active: isActive('/')}"><a class="nav-link" ng-href="#/">Home</a></li>
-		      <li class="nav-item" ng-class="{ active: isActive('/bookings')}" ng-hide=""><a class="nav-link" ng-href="#!/bookings">Bookings Calendar</a></li>
-		      <li class="nav-item" ng-class="{ active: isActive('/resources')}" ng-hide=""><a class="nav-link" ng-href="#!/resources">Resources</a></li>
-		      <li class="nav-item" ng-class="{ active: isActive('/signup')}" ng-disabled="isLoggedIn() && !isAdmin()"><a class="nav-link" ng-href="#!/signup">Sign Up</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/bookings')}" ng-hide="userNotAdmin"><a class="nav-link" ng-href="#!/bookings">Bookings Calendar</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/resources')}" ng-hide="userNotAdmin"><a class="nav-link" ng-href="#!/resources">Resources</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/signup')}" ng-disabled="userNotAdmin"><a class="nav-link" ng-href="#!/signup">Sign Up</a></li>
 		    </ul>
 		  </div>
 

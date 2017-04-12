@@ -2,7 +2,16 @@ app.controller('navController', ['$scope', '$location', 'authService', function(
 
 	$scope.logOut = authService.logOut;
 
-	$scope.isAdmin = authService.isAdminUser;
+	if(!authService.isAdminUser) {
+
+		$scope.userNotAdmin = true;
+	}
+	else {
+
+		$scope.userNotAdmin = false;
+	}
+	
+	
 
 	$scope.isLoggedIn = authService.userLoggedIn;
 

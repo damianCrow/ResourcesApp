@@ -37,13 +37,19 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
   }
 }]);
 
-app.run(['$rootScope', 'authService', '$location', function($rootScope, authService, $location) {
+app.run(['$rootScope', 'authService', 'messageService', function($rootScope, authService, messageService) {
 
   $rootScope.$on('$routeChangeError', function(event, current, previous, rejection) {
 
-    if(rejection) {
+    if(rejection === 'userNotLoggedIn') {
 
-      $location.path('/login');
+      $rootScope.redirect('/login');
+    } 
+
+    if(rejection === 'userNotAdmin') {
+
+      messageService.showMessage('Only ADMIN users can access this section', $rootScope.closeMessage);
+      $rootScope.redirect('/');
     } 
   });
 }]);
