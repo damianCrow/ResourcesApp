@@ -10,9 +10,9 @@
 
 	<div class="filters_wrapper col-md-6 float-md-right">
 		<label for="resourceFilter">Filter by resource:</label>
-		<select class="col-md-6" id="resourceFilter" ng-model="resourceFilter" name="resourceFilter" ng-change="filterMethod(resourceFilter, 'resource_name')">
+		<select class="col-md-6" id="resourceFilter" ng-model="resourceFilter" name="resourceFilter" ng-change="filterMethod(resourceFilter, 'resource_name')" ng-disabled="notAdmin">
 			<option value="">None selected</option>
-		  <option ng-repeat="resource in resources" value="{{resource.first_name}} {{resource.last_name}}" ng-disabled="resource.bookable === '0'">{{resource.first_name}} {{resource.last_name}}</option>
+		   <option ng-repeat="resource in resources" value="{{resource.first_name}} {{resource.last_name}}">{{resource.first_name}} {{resource.last_name}}</option> 
 		</select>
 	</div>
 
@@ -137,7 +137,7 @@
 
 	    <button class="btn btn-warning" ng-click="closeForm('editProjectForm')">Close</button>
 	    <button type="submit" class="btn btn-primary" ng-click="updateProject(projectDataToDisplay.id)">Update</button>
-	    <button class="btn btn-warning" ng-click="deleteProject(projectDataToDisplay.id)">Delete</button>
+	    <button class="btn btn-danger" ng-click="deleteProject(projectDataToDisplay.id)">Delete</button>
 	  </form>
 	</div>
 </div>

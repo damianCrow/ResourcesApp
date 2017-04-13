@@ -266,25 +266,30 @@ var TimeScheduler = {
         
         TimeScheduler.CreateCalendar();
         TimeScheduler.FillSections(overrideCache);
-        TimeScheduler.createAppendElement('button', ['btn', 'btn-primary'], 'New Booking', $('.time-sch-section.time-sch-section-header')[0], function() {
 
-            TimeScheduler.Scope.$apply(function() {
+        if(TimeScheduler.isAdminUser) {
 
-              TimeScheduler.Scope.showBookingData = false;
-              TimeScheduler.Scope.creatingProject = false;
-              TimeScheduler.Scope.creatingBooking = true;
+            TimeScheduler.createAppendElement('button', ['btn', 'btn-primary'], 'New Booking', $('.time-sch-section.time-sch-section-header')[0], function() {
+
+                TimeScheduler.Scope.$apply(function() {
+
+                  TimeScheduler.Scope.showBookingData = false;
+                  TimeScheduler.Scope.creatingProject = false;
+                  TimeScheduler.Scope.creatingBooking = true;
+                });
             });
-        });
 
-        TimeScheduler.createAppendElement('button', ['btn', 'btn-info'], 'New Project', $('.time-sch-section.time-sch-section-header')[1], function() {
+            TimeScheduler.createAppendElement('button', ['btn', 'btn-info'], 'New Project', $('.time-sch-section.time-sch-section-header')[1], function() {
 
-            TimeScheduler.Scope.$apply(function() {
+                TimeScheduler.Scope.$apply(function() {
 
-              TimeScheduler.Scope.showBookingData = false;
-              TimeScheduler.Scope.creatingBooking = false;
-              TimeScheduler.Scope.creatingProject = true;
+                  TimeScheduler.Scope.showBookingData = false;
+                  TimeScheduler.Scope.creatingBooking = false;
+                  TimeScheduler.Scope.creatingProject = true;
+                });
             });
-        });
+        }
+        
     },
 
     GetSelectedPeriod: function () {

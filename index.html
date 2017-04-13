@@ -16,8 +16,8 @@
 	  crossorigin="anonymous">
 	  </script>
 	  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.3/angular.min.js"></script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.3/angular-route.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.9/angular.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.9/angular-route.min.js"></script>
 
  		<link href="css/timelineScheduler.css" rel="stylesheet"/>
     <link href="css/timelineScheduler.styling.css" rel="stylesheet"/>
@@ -33,13 +33,13 @@
 		<nav class="navbar navbar-inverse bg-inverse navbar-toggleable" ng-controller="navController">
   		<div class="collapse navbar-collapse">
 		    
-		    <a class="navbar-brand" ng-href="#"> Resources </a>
+		    <a class="navbar-brand" ng-href="#!/bookings"> Resources </a>
 		    
 		    <ul class="navbar-nav nav">
-		      <li class="nav-item" ng-class="{ active: isActive('/')}"><a class="nav-link" ng-href="#/">Home</a></li>
-		      <li class="nav-item" ng-class="{ active: isActive('/bookings')}" ng-hide="userNotAdmin"><a class="nav-link" ng-href="#!/bookings">Bookings Calendar</a></li>
-		      <li class="nav-item" ng-class="{ active: isActive('/resources')}" ng-hide="userNotAdmin"><a class="nav-link" ng-href="#!/resources">Resources</a></li>
-		      <li class="nav-item" ng-class="{ active: isActive('/signup')}" ng-disabled="userNotAdmin"><a class="nav-link" ng-href="#!/signup">Sign Up</a></li>
+		     <!--  <li class="nav-item" ng-class="{ active: isActive('/')}"><a class="nav-link" ng-href="#/">Home</a></li> -->
+		      <li class="nav-item" ng-class="{ active: isActive('/bookings')}"><a class="nav-link" ng-href="#/bookings">Bookings Calendar</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/resources')}"><a class="nav-link" ng-href="#/resources">Resources</a></li>
+		      <li class="nav-item" ng-class="{ active: isActive('/signup')}"><a class="nav-link" ng-href="#/signup">Sign Up</a></li>
 		    </ul>
 		  </div>
 

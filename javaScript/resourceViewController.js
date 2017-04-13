@@ -1,4 +1,6 @@
-app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getInfoService', 'filterService', 'messageService', '$timeout', function($scope, $http, $rootScope, getInfoService, filterService, messageService, $timeout) {
+app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getInfoService', 'filterService', 'messageService', '$timeout', 'authService', function($scope, $http, $rootScope, getInfoService, filterService, messageService, $timeout, authService) {
+  
+  authService.isAdminUser(); // CALLED TO DETERMINE WHETHER OR NOT THE CURRENT USER IS AN ADMIN USER \\
 
   var today = moment().startOf('day');
   $scope.startDay = moment(today);
@@ -123,6 +125,15 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         TimeScheduler.Options.MaxHeight = 100;
 
+        if($rootScope.notAdminUser) {
+
+          TimeScheduler.isAdminUser = false;
+        }
+        else {
+
+          TimeScheduler.isAdminUser = true;
+        }
+   
         TimeScheduler.updateStart = function(newStartDate) {
 
           $scope.$apply(function() {
@@ -176,6 +187,14 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     },
 
     Item_Dragged: function (item, sectionID, start, end) {
+
+
+      if($rootScope.notAdminUser) {
+
+        messageService.showMessage('You must be an ADMIN user to change a booking!', $rootScope.closeMessage);
+        Calendar.Init();
+      }
+      else {
         
         var foundItem;
 
@@ -223,9 +242,18 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
           populateEventsArray(Calendar.Items, responseData, Calendar.Init);
         });
+      }
     },
 
     Item_Resized: function (item, start, end) {
+
+      if($rootScope.notAdminUser) {
+
+        messageService.showMessage('You must be an ADMIN user to change a booking!', $rootScope.closeMessage);
+        Calendar.Init();
+      }
+      else {
+
         var foundItem;
 
         for (var i = 0; i < Calendar.Items.length; i++) {
@@ -260,6 +288,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         }
 
         TimeScheduler.Init();
+      }
     },
 
     Item_Movement: function (item, start, end) {
@@ -383,51 +412,65 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
   $scope.deleteBooking = function(bookingId) {
 
-    messageService.showConfirm("Are you sure you want to DELETE " + $scope.bookingToDisplay.title + "?", function() {
-      
-      $rootScope.makeRequest('DELETE', 'api/public/booking/' + bookingId, null, function(response) {
+    if($rootScope.notAdminUser) {
 
-        messageService.showMessage(response.data, $rootScope.closeMessage);
+      messageService.showMessage('You must be an ADMIN user to delete a booking!', $rootScope.closeMessage);
+    }
+    else {
 
-        getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+      messageService.showConfirm("Are you sure you want to DELETE " + $scope.bookingToDisplay.title + "?", function() {
+        
+        $rootScope.makeRequest('DELETE', 'api/public/booking/' + bookingId, null, function(response) {
 
-          filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+          messageService.showMessage(response.data, $rootScope.closeMessage);
 
-            populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+          getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+
+            filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+              populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+            });
           });
         });
       });
-    });
 
-    $scope.closeForm('displayBookingForm');
+      $scope.closeForm('displayBookingForm');
+    }
   }
 
   $scope.updateBooking = function(bookingId) {
+
+    if($rootScope.notAdminUser) {
+
+      messageService.showMessage('You must be an ADMIN user to update a booking!', $rootScope.closeMessage);
+    }
+    else {
   
-    messageService.showConfirm("Are you sure you want to UPDATE " + $scope.bookingToDisplay.title + "?", function() {
+      messageService.showConfirm("Are you sure you want to UPDATE " + $scope.bookingToDisplay.title + "?", function() {
 
-      var formData = new FormData();
+        var formData = new FormData();
 
-      formData.append('title', $('#editBookingTitle')[0].value);
-      formData.append('notes', $('#editBookingNotes')[0].value);
-      formData.append('resource_name', $('#editResourceName')[0].value);
-      formData.append('project_name', $('#editProjectName')[0].value);
+        formData.append('title', $('#editBookingTitle')[0].value);
+        formData.append('notes', $('#editBookingNotes')[0].value);
+        formData.append('resource_name', $('#editResourceName')[0].value);
+        formData.append('project_name', $('#editProjectName')[0].value);
 
-      $rootScope.makeRequest('POST', 'api/public/booking/update/' + bookingId, formData, function(response) {
+        $rootScope.makeRequest('POST', 'api/public/booking/update/' + bookingId, formData, function(response) {
 
-        messageService.showMessage(response.data, $rootScope.closeMessage);
+          messageService.showMessage(response.data, $rootScope.closeMessage);
 
-        getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+          getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
-          filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+            filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
 
-            populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+              populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+            });
           });
         });
       });
-    });
 
-    $scope.closeForm('displayBookingForm');
+      $scope.closeForm('displayBookingForm');
+    }
   }
 
   $scope.saveProject = function() {
@@ -449,38 +492,52 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   }
 
   $scope.updateProject = function(projectId) {
+
+    if($rootScope.notAdminUser) {
+
+      messageService.showMessage('You must be an ADMIN user to update a project!', $rootScope.closeMessage);
+    }
+    else {
   
-    messageService.showConfirm("Are you sure you want to UPDATE " + $scope.projectDataToDisplay.name + "?", function() {
+      messageService.showConfirm("Are you sure you want to UPDATE " + $scope.projectDataToDisplay.name + "?", function() {
 
-      var formData = new FormData();
+        var formData = new FormData();
 
-      formData.append('name', $('#projectEditName')[0].value);
-      formData.append('color', $('#projectEditColorCode')[0].value);
-      formData.append('notes', $('#projectEditNotes')[0].value);
+        formData.append('name', $('#projectEditName')[0].value);
+        formData.append('color', $('#projectEditColorCode')[0].value);
+        formData.append('notes', $('#projectEditNotes')[0].value);
 
-      $rootScope.makeRequest('POST', 'api/public/project/update/' + projectId, formData, function(response) {
-        
-        messageService.showMessage(response.data, $rootScope.closeMessage);
-        getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init); 
+        $rootScope.makeRequest('POST', 'api/public/project/update/' + projectId, formData, function(response) {
+          
+          messageService.showMessage(response.data, $rootScope.closeMessage);
+          getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init); 
+        });
       });
-    });
 
-    $scope.closeForm('editProjectForm');
+      $scope.closeForm('editProjectForm');
+    }
   }
 
   $scope.deleteProject = function(projectId) {
 
-    messageService.showConfirm("Are you sure you want to DELETE " + $scope.projectDataToDisplay.name + "?", function() {
+    if($rootScope.notAdminUser) {
 
-      $rootScope.makeRequest('DELETE', 'api/public/project/' + projectId, null, function(response) {
+      messageService.showMessage('You must be an ADMIN user to delete a project!', $rootScope.closeMessage);
+    }
+    else {
 
-        messageService.showMessage(response.data, $rootScope.closeMessage);
-       
-        getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
-      });
-    }); 
+      messageService.showConfirm("Are you sure you want to DELETE " + $scope.projectDataToDisplay.name + "?", function() {
 
-    $scope.closeForm('editProjectForm');
+        $rootScope.makeRequest('DELETE', 'api/public/project/' + projectId, null, function(response) {
+
+          messageService.showMessage(response.data, $rootScope.closeMessage);
+         
+          getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
+        });
+      }); 
+
+      $scope.closeForm('editProjectForm');
+    }
   }
 
   $scope.filterMethod = function(selectValue, filterKey) {
@@ -496,6 +553,15 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
       });
     });
+  }
+
+  if($rootScope.notAdminUser) {
+
+    $scope.notAdmin = true;
+
+    var userName = authService.getLoggedInUser().first_name + ' ' + authService.getLoggedInUser().last_name;
+
+    $scope.filterMethod(userName, 'resource_name');
   }
 
   $scope.getBookings = function(callBack) {

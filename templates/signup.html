@@ -1,49 +1,57 @@
 <div class="col-md-10 offset-md-1 center_vertically" ng-controller="signUpController">
  
-  <h2> Sign Up New Resource </h2>
+  <h2 style="text-align: center;"> Sign Up New Resource </h2>
   
   <form ng-model="signUpForm" name="signUpForm" ng-submit="signUp()">
 
-    <div class="form-group">
-      <label for="signUpFirstName"> Enter First Name </label>
-      <input id="signUpFirstName" class="form-control" type="text" name="signUpFirstName" required>
+    <div class="input-group">
+      <div class="form-group col-md-6">
+        <label for="signUpFirstName"> Enter First Name </label>
+        <input id="signUpFirstName" class="form-control" type="text" name="signUpFirstName" required>
+      </div>
+
+      <div class="form-group col-md-6">
+        <label for="signUpLastName"> Enter Last Name </label>
+        <input id="signUpLastName" class="form-control" type="text" name="signUpLastName" required>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="signUpLastName"> Enter Last Name </label>
-      <input id="signUpLastName" class="form-control" type="text" name="signUpLastName" required>
+    <div class="input-group">
+      <div class="form-group col-md-6">
+        <label for="signUpEmail"> Enter Email Address </label>
+        <input type="email" id="signUpEmail" class="form-control" name="signUpEmail" required>
+      </div>
+
+      <div class="form-group col-md-6">
+        <label for="signUpResourceType">Select Resource Type:</label>
+        <select class="form-control" id="signUpResourceType">
+          <option value="">-- Please select a resource type: --</option>
+          <option ng-repeat="resource in resourceTypes" value="{{resource}}">{{resource}}</option>
+        </select>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="signUpEmail"> Enter Email Address </label>
-      <input type="email" id="signUpEmail" class="form-control" name="signUpEmail" required>
+    <div class="input-group">
+      <div class="form-group col-md-6">
+        <label for="signUpPassword"> Enter Password </label>
+        <input id="signUpPassword" class="form-control" type="password" name="signUpPassword" required>
+      </div>
+
+      <div class="form-group col-md-3">
+        <label for="signUpAdmin"> Admin User </label>
+        <input type="checkbox" id="signUpAdmin" class="form-control" name="signUpAdmin">
+      </div>
+
+       <div class="form-group col-md-3">
+        <label for="signUpBookable"> Bookable User </label>
+        <input type="checkbox" id="signUpBookable" class="form-control" name="signUpBookable">
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="signUpResourceType">Select Resource Type:</label>
-      <select class="form-control" id="signUpResourceType">
-        <option value="">-- Please select a resource type: --</option>
-        <option ng-repeat="resource in resourceTypes" value="{{resource}}">{{resource}}</option>
-      </select>
+    <div class="form-group col-md-3">
+      <button type="submit" class="btn btn-primary"> Sign Up </button>
+      <input type="hidden" name="_token" value="">
     </div>
-
-    <div class="form-group">
-      <label for="signUpPassword"> Enter Password </label>
-      <input id="signUpPassword" class="form-control" type="password" name="signUpPassword" required>
-    </div>
-
-    <div class="form-group">
-      <label for="signUpAdmin"> Make Admin User </label>
-      <input type="checkbox" id="signUpAdmin" class="form-control" name="signUpAdmin">
-    </div>
-
-    <div class="form-group">
-      <label for="signUpBookable"> Make User Bookable </label>
-      <input type="checkbox" id="signUpBookable" class="form-control" name="signUpBookable">
-    </div>
-
-    <button type="submit" class="btn btn-primary"> Sign Up </button>
-    <input type="hidden" name="_token" value="">
 
   </form>
   

@@ -22,7 +22,7 @@ app.service('authService', ['$rootScope', '$window', '$location', 'messageServic
     		else {
 
     			$window.sessionStorage.setItem('user', angular.toJson(response.data));
-                $rootScope.redirect('/');
+                $rootScope.redirect('/bookings');
     		}
     	});
 
@@ -38,7 +38,7 @@ app.service('authService', ['$rootScope', '$window', '$location', 'messageServic
 
         if($window.sessionStorage.getItem('user') !== null) {
 
-            return true;
+            return $q.resolve(true);
         }
         else {
 
@@ -51,17 +51,20 @@ app.service('authService', ['$rootScope', '$window', '$location', 'messageServic
 
         if(!$window.sessionStorage.getItem('user')) {
 
-            return $q.reject('userNotAdmin');
+            $rootScope.notAdminUser = false;
+            return $q.reject('userNotAdmin');   
         }
         else {
 
         	if(angular.fromJson($window.sessionStorage.getItem('user')).admin === '1') {
 
-        		return true;
+                $rootScope.notAdminUser = false;
+                return $q.resolve(true);	 
         	}
         	else {
 
-        		return $q.reject('userNotAdmin');
+                $rootScope.notAdminUser = true;
+        		return $q.reject('userNotAdmin');   
         	}
         }
     },

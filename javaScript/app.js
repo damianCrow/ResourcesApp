@@ -4,14 +4,15 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 
   $routeProvider.when('/login', {templateUrl: 'templates/login.html'});
 
-	$routeProvider.when('/', {templateUrl: 'templates/home.html', resolve: {
+	// $routeProvider.when('/', {templateUrl: 'templates/home.html', resolve: {
 
-      auth: ['authService', function(authService) { return authService.userLoggedIn();}]
-    }
-  });
+ //      auth: ['authService', function(authService) { return authService.userLoggedIn();}]
+ //    }
+ //  });
+ 
   $routeProvider.when('/bookings', {templateUrl: 'templates/resources_view.html', resolve: {
 
-      auth: ['authService', function(authService) { return authService.isAdminUser();}]
+      auth: ['authService', function(authService) { return authService.userLoggedIn();}]
     }
   });
   $routeProvider.when('/resources', {templateUrl: 'templates/resources.html', resolve: {
@@ -49,7 +50,11 @@ app.run(['$rootScope', 'authService', 'messageService', function($rootScope, aut
     if(rejection === 'userNotAdmin') {
 
       messageService.showMessage('Only ADMIN users can access this section', $rootScope.closeMessage);
-      $rootScope.redirect('/');
+
+      if(previous.$$route.originalPath) {
+
+        $rootScope.redirect(previous.$$route.originalPath);
+      }
     } 
   });
 }]);
