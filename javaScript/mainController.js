@@ -35,4 +35,11 @@ app.controller('mainController', ['$scope', '$http', '$rootScope', '$location', 
  
    return $location.path(newPath);
   }
+
+  $rootScope.resourceTypes = [
+   'Developer',
+   'Designer',
+   'Project Manager',
+   'Copy Writer'
+  ];
 }]);

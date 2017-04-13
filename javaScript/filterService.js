@@ -2,11 +2,11 @@ app.service('filterService', ['$filter', '$rootScope', function($filter, $rootSc
 
 	return {
 
-		filterObjArray: function(sourceArray, filterObj, clallBack) {
+		filterObjArray: function(sourceArray, filterObj, callBack) {
 
 			var result = $filter('filter')(sourceArray, filterObj);
 			
-			clallBack(result);
+			callBack(result);
 		}
 	};
 }]);

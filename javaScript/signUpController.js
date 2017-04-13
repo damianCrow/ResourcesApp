@@ -1,12 +1,5 @@
 app.controller('signUpController', ['$scope', '$rootScope', 'messageService', function($scope, $rootScope, messageService) {
 
- $scope.resourceTypes = [
-	 'Developer',
-	 'Designer',
-	 'Project Manager',
-	 'Copy Writer'
- ];
-
  	$scope.signUp = function() {
 
  		if($('#signUpAdmin')[0].checked) {

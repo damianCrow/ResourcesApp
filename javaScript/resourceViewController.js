@@ -164,6 +164,12 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
           parent.append(ele);
         }
 
+          if($scope.relevantProject !== undefined) {
+
+            Calendar.Sections.splice(0, Calendar.Sections.length);
+            Calendar.Sections.push($scope.relevantProject);
+          }
+
         TimeScheduler.Init();
     },
 
@@ -550,7 +556,28 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
       filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
 
-        populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+        populateEventsArray(Calendar.Items, resultArray, function() {
+          
+          getInfoService.getProjects(popuplateSectionsArray);
+
+          if(selectValue.length === 0 && filterKey === 'project_name') {
+
+            $scope.relevantProject = undefined;
+          }
+
+          if(filterKey === 'project_name' && selectValue !== '') {
+
+            angular.forEach(Calendar.Sections, function(item) {
+
+              if(item.name === selectValue) {
+
+                $scope.relevantProject = item;
+              }
+            });
+          }
+          
+          Calendar.Init();
+        });
       });
     });
   }

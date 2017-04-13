@@ -1,0 +1,62 @@
+
+<div ng-controller="resourceController">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Ocupation</th>
+        <th>Email</th>
+        <th>Admin</th>
+        <th>Bookable</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="resource in resources">
+        <td value="{{resource.first_name}} {{resource.last_name}}">{{resource.first_name}} {{resource.last_name}}</td>
+        <td>
+         
+          <div class="form-group">
+            <select class="form-control">
+              <option ng-repeat="item in resourceTypes" ng-selected="resource.resource_type === item">{{item}}</option>
+            </select>
+          </div>
+        </td>
+        <td>
+          <div class="form-group">
+            <input class="form-control" value="{{resource.email}}" type="text">
+          </div>
+        </td>
+        <td ng-if="resource.admin === '1'">
+          <div class="form-group">
+            <input class="form-control" type="checkbox" checked>
+          </div>
+        </td>
+        <td ng-if="resource.admin === '0'">
+          <div class="form-group">
+            <input class="form-control" type="checkbox">
+          </div>
+        </td>
+        <td ng-if="resource.bookable === '1'">
+          <div class="form-group">
+            <input class="form-control" type="checkbox" checked>
+          </div>
+        </td>
+        <td ng-if="resource.bookable === '0'">
+          <div class="form-group">
+            <input class="form-control" type="checkbox">
+          </div>
+        </td>
+        <td value="">
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary" ng-click="">Update</button>
+          </div>
+        </td>
+        <td value="">
+          <div class="form-group">
+            <button class="btn btn-danger" ng-click="">Delete</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
