@@ -8,7 +8,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   $scope.creatingProject = false;
   $scope.showBookingData = false;
   $scope.filterObj = {};
-  $scope.selectedPeriod = '3 days'; 
+  $scope.selectedPeriod = '1 week'; 
 
   function populateEventsArray(arrayToPopulate, dataArray, callBack) {
 
@@ -194,54 +194,56 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     Item_Dragged: function (item, sectionID, start, end) {
 
-
       if($rootScope.notAdminUser) {
 
-        messageService.showMessage('You must be an ADMIN user to change a booking!', $rootScope.closeMessage);
-        Calendar.Init();
+        messageService.showMessage('alert-danger', 'You must be an ADMIN user to change a booking!', $rootScope.closeMessage);
+        return Calendar.Init();
       }
       else {
+
+        if(start.format() < moment().format()) {
+
+          messageService.showMessage('alert-danger', 'You cannot drag a booking into the past!', $rootScope.closeMessage);
+          return TimeScheduler.Init();
+        }
         
         var foundItem;
 
-        for (var i = 0; i < Calendar.Items.length; i++) {
+        for(var i = 0; i < Calendar.Items.length; i++) {
+
+          if(Calendar.Items[i].id === item.id) {
+
             foundItem = Calendar.Items[i];
 
-            if(foundItem.id === item.id) {
-                foundItem.sectionID = sectionID;
-                foundItem.start = start;
-                foundItem.end = end;
+            return messageService.showConfirm("The start date for " + item.title + " will be changed to: " + start.format('MMMM Do YYYY, h:mm a'), function() {
 
-                for(var p = 0; p < Calendar.Sections.length; p++) {
+              foundItem.start = start;
+              foundItem.end = end;
+              foundItem.sectionID = sectionID;
 
-                  if(Calendar.Sections[p].id === foundItem.sectionID) {
+              for(var p = 0; p < Calendar.Sections.length; p++) {
 
-                    foundItem.project_name = Calendar.Sections[p].name;
-                  }
+                if(Calendar.Sections[p].id === foundItem.sectionID) {
+
+                  foundItem.project_name = Calendar.Sections[p].name;
                 }
+              }
 
-                Calendar.Items[i] = foundItem;
+              $rootScope.makeRequest('PUT', 'api/public/booking/update/' + foundItem.id + '?start_date=' + moment.utc(moment(foundItem.start)).format() + '&end_date=' + moment.utc(moment(foundItem.end)).format() + '&project_name=' + foundItem.project_name, null, function(response) {
 
-                if(!confirm("The start date for " + item.title + " will be changed to: " + start.format('MMMM Do YYYY, h:mm a'))) {
-          
-                  TimeScheduler.Init();
-                }
-                else {
+                messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
+                
+                getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
-                  $rootScope.makeRequest('PUT', 'api/public/booking/update/' + foundItem.id + '?start_date=' + moment.utc(moment(foundItem.start)).format() + '&end_date=' + moment.utc(moment(foundItem.end)).format() + '&project_name=' + foundItem.project_name, null, function(response) {
+                  filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
 
-                    messageService.showMessage(response.data, $rootScope.closeMessage);
-                    
-                    getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
-
-                      filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
-
-                        populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
-                      });
-                    });
+                    populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
                   });
-                }
-            }
+                });
+              });
+
+            }, TimeScheduler.Init);
+          }
         }
 
         getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(responseData) {
@@ -255,41 +257,49 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
       if($rootScope.notAdminUser) {
 
-        messageService.showMessage('You must be an ADMIN user to change a booking!', $rootScope.closeMessage);
-        Calendar.Init();
+        messageService.showMessage('alert-danger', 'You must be an ADMIN user to change a booking!', $rootScope.closeMessage);
+        return Calendar.Init();
       }
       else {
 
+        if(start.format() < moment().format()) {
+
+          messageService.showMessage('alert-danger', 'You cannot extend a booking into the past!', $rootScope.closeMessage);
+          return TimeScheduler.Init();
+        }
+
         var foundItem;
 
-        for (var i = 0; i < Calendar.Items.length; i++) {
+        for(var i = 0; i < Calendar.Items.length; i++) {
+
             foundItem = Calendar.Items[i];
 
-            if (foundItem.id === item.id) {
-                foundItem.start = start;
-                foundItem.end = end;
+            if(foundItem.id === item.id) {
 
-                Calendar.Items[i] = foundItem;
+              foundItem.start = start;
+              foundItem.end = end;
 
-                if(!confirm(item.title + ' will start: ' + start.format('MMMM Do YYYY, h:mm a') + ' and end: ' + end.format('MMMM Do YYYY, h:mm a'))) {
-          
-                  TimeScheduler.Init();
-                }
-                else {
+              Calendar.Items[i] = foundItem;
 
-                  $rootScope.makeRequest('PUT', 'api/public/booking/update/' + foundItem.id + '?start_date=' + moment.utc(moment(foundItem.start)).format() + '&end_date=' + moment.utc(moment(foundItem.end)).format(), null, function(response) {
+              if(!confirm(item.title + ' will start: ' + start.format('MMMM Do YYYY, h:mm a') + ' and end: ' + end.format('MMMM Do YYYY, h:mm a'))) {
+        
+                return TimeScheduler.Init();
+              }
+              else {
 
-                    messageService.showMessage(response.data, $rootScope.closeMessage);
-                    
-                    getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+                $rootScope.makeRequest('PUT', 'api/public/booking/update/' + foundItem.id + '?start_date=' + moment.utc(moment(foundItem.start)).format() + '&end_date=' + moment.utc(moment(foundItem.end)).format(), null, function(response) {
 
-                      filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+                  messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
+                  
+                  getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
-                        populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
-                      });
+                    filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+
+                      populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
                     });
                   });
-                }
+                });
+              }
             }
         }
 
@@ -389,7 +399,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     if($scope.bookingsStartDate <= moment(today).add(-1, 'days').format()) {
 
       $scope.closeForm('newBookingForm');
-      return messageService.showMessage('You cannot create a booking in the past!', $rootScope.closeMessage);
+      return messageService.showMessage('alert-danger', 'You cannot create a booking in the past!', $rootScope.closeMessage);
     }
 
     var formData = new FormData();
@@ -403,7 +413,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     $rootScope.makeRequest('POST', 'api/public/booking', formData, function(response) {
 
-      messageService.showMessage(response.data, $rootScope.closeMessage);
+      messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
       getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
         filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
@@ -420,7 +430,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     if($rootScope.notAdminUser) {
 
-      messageService.showMessage('You must be an ADMIN user to delete a booking!', $rootScope.closeMessage);
+      messageService.showMessage('alert-danger', 'You must be an ADMIN user to delete a booking!', $rootScope.closeMessage);
     }
     else {
 
@@ -428,7 +438,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
         
         $rootScope.makeRequest('DELETE', 'api/public/booking/' + bookingId, null, function(response) {
 
-          messageService.showMessage(response.data, $rootScope.closeMessage);
+          messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
 
           getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
@@ -448,7 +458,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     if($rootScope.notAdminUser) {
 
-      messageService.showMessage('You must be an ADMIN user to update a booking!', $rootScope.closeMessage);
+      messageService.showMessage('alert-danger', 'You must be an ADMIN user to update a booking!', $rootScope.closeMessage);
     }
     else {
   
@@ -463,7 +473,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         $rootScope.makeRequest('POST', 'api/public/booking/update/' + bookingId, formData, function(response) {
 
-          messageService.showMessage(response.data, $rootScope.closeMessage);
+          messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
 
           getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
@@ -489,7 +499,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     $rootScope.makeRequest('POST', 'api/public/project', formData, function(response) {
 
-      messageService.showMessage(response.data, $rootScope.closeMessage);
+      messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
       
       getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
     });
@@ -501,7 +511,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     if($rootScope.notAdminUser) {
 
-      messageService.showMessage('You must be an ADMIN user to update a project!', $rootScope.closeMessage);
+      messageService.showMessage('alert-danger', 'You must be an ADMIN user to update a project!', $rootScope.closeMessage);
     }
     else {
   
@@ -515,7 +525,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         $rootScope.makeRequest('POST', 'api/public/project/update/' + projectId, formData, function(response) {
           
-          messageService.showMessage(response.data, $rootScope.closeMessage);
+          messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
           getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init); 
         });
       });
@@ -528,7 +538,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
     if($rootScope.notAdminUser) {
 
-      messageService.showMessage('You must be an ADMIN user to delete a project!', $rootScope.closeMessage);
+      messageService.showMessage('alert-danger', 'You must be an ADMIN user to delete a project!', $rootScope.closeMessage);
     }
     else {
 
@@ -536,7 +546,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         $rootScope.makeRequest('DELETE', 'api/public/project/' + projectId, null, function(response) {
 
-          messageService.showMessage(response.data, $rootScope.closeMessage);
+          messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
          
           getInfoService.getProjects(popuplateSectionsArray, TimeScheduler.Init);
         });

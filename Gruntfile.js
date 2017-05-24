@@ -44,7 +44,7 @@ module.exports = function(grunt) {
         //         options: {
         //             port: 8080,
         //             open: {
-        //                 target: 'http://localhost:8080'
+        //                 target: 'http://localhost:8000'
         //             }
         //         }
         //     }

@@ -2,14 +2,14 @@ app.service('messageService', ['$timeout', '$rootScope', function($timeout, $roo
 
 	return {
 
-		showMessage: function(message, callBack) {
+		showMessage: function(messageClass, message, callBack) {
 
 			$timeout(function() {
 
 				callBack();
 			}, 2000)
 
-			return $('body').append('<div class="alert alert-info custom_alert"><h6>' + message + '</h6></div>');
+			return $('body').append('<div class="alert ' + messageClass + ' custom_alert"><h6>' + message + '</h6></div>');
 		},
 
 		showConfirm: function(message, callBack, callBack2) {
@@ -17,24 +17,10 @@ app.service('messageService', ['$timeout', '$rootScope', function($timeout, $roo
 			var button = document.createElement('button');
 			button.innerHTML= 'Confirm';
 			button.className = 'btn btn-warning float-md-right confirm_button';
-			button.onclick = function() {
-
-				callBack();
-				$('.alert.alert-warning.custom_confirm').remove();
-			}
 
 			var button2 = document.createElement('button');
 			button2.innerHTML= 'Cancel';
 			button2.className = 'btn btn-info float-md-right';
-			button2.onclick = function() {
-
-				if(callBack2) {
-
-					callBack2();
-				}
-
-				$('.alert.alert-warning.custom_confirm').remove();
-			}
 
 			var div = document.createElement('div');
 			div.className = 'alert alert-warning custom_confirm';
@@ -45,6 +31,22 @@ app.service('messageService', ['$timeout', '$rootScope', function($timeout, $roo
 			div.append(h6);
 			div.append(button2);
 			div.append(button);
+
+			button.onclick = function() {
+
+				$('.alert.alert-warning.custom_confirm').remove();
+				return callBack();
+			}
+
+			button2.onclick = function() {
+
+				$('.alert.alert-warning.custom_confirm').remove();
+
+				if(callBack2) {
+
+					return callBack2();
+				}
+			}
 
 			return $('body').append(div);
 		}
