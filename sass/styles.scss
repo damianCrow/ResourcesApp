@@ -65,3 +65,13 @@ html, body, #view {
 .input-group .form-control {
 	width: 100%;
 }
+
+.disabled {
+	opacity: 0.6;
+  pointer-events: none;
+
+  .alert.alert-warning.custom_confirm, .alert.custom_alert {
+  	opacity: 1;
+    pointer-events: all;
+  }
+}

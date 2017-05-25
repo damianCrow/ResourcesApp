@@ -179,17 +179,21 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     },
 
     GetSchedule: function (callback, start, end) {
-        callback(Calendar.Items);
+
+      callback(Calendar.Items);
     },
 
-    Item_Clicked: function (item) {
+    Item_Clicked: function(item) {
 
-      $scope.bookingToDisplay = item;
+      if(!this.Item_Resized) { // THIS PREVENTS A BUG WHERE THE BOOKING DETAILS FORM APEARS WHEN THE BOOKING IS RESIZED UNTIL I FIND A PERMANENT SOLUTION. \\
 
-      $scope.$apply(function() {
+        $scope.bookingToDisplay = item;
 
-        $scope.showBookingData = true;
-      });
+        $scope.$apply(function() {
+
+          $scope.showBookingData = true;
+        });
+      }
     },
 
     Item_Dragged: function (item, sectionID, start, end) {
@@ -245,15 +249,10 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
             }, TimeScheduler.Init);
           }
         }
-
-        getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(responseData) {
-
-          populateEventsArray(Calendar.Items, responseData, Calendar.Init);
-        });
       }
     },
 
-    Item_Resized: function (item, start, end) {
+    Item_Resized: function(item, start, end) {
 
       if($rootScope.notAdminUser) {
 
@@ -272,38 +271,39 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
         for(var i = 0; i < Calendar.Items.length; i++) {
 
+          if(Calendar.Items[i].id === item.id) {
+
             foundItem = Calendar.Items[i];
 
-            if(foundItem.id === item.id) {
-
+            return messageService.showConfirm(item.title + ' will start: ' + start.format('MMMM Do YYYY, h:mm a') + ' and end: ' + end.format('MMMM Do YYYY, h:mm a'), function() {
+ 
               foundItem.start = start;
               foundItem.end = end;
 
-              Calendar.Items[i] = foundItem;
+              for(var p = 0; p < Calendar.Sections.length; p++) {
 
-              if(!confirm(item.title + ' will start: ' + start.format('MMMM Do YYYY, h:mm a') + ' and end: ' + end.format('MMMM Do YYYY, h:mm a'))) {
-        
-                return TimeScheduler.Init();
+                if(Calendar.Sections[p].id === foundItem.sectionID) {
+
+                  foundItem.project_name = Calendar.Sections[p].name;
+                }
               }
-              else {
 
-                $rootScope.makeRequest('PUT', 'api/public/booking/update/' + foundItem.id + '?start_date=' + moment.utc(moment(foundItem.start)).format() + '&end_date=' + moment.utc(moment(foundItem.end)).format(), null, function(response) {
+              $rootScope.makeRequest('PUT', 'api/public/booking/update/' + foundItem.id + '?start_date=' + moment.utc(moment(foundItem.start)).format() + '&end_date=' + moment.utc(moment(foundItem.end)).format() + '&project_name=' + foundItem.project_name, null, function(response) {
 
-                  messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
-                  
-                  getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+                messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
+                
+                getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
-                    filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+                  filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
 
-                      populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
-                    });
+                    populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
                   });
                 });
-              }
-            }
-        }
+              });
 
-        TimeScheduler.Init();
+            }, TimeScheduler.Init);
+          }
+        }
       }
     },
 

@@ -4,15 +4,20 @@ app.service('messageService', ['$timeout', '$rootScope', function($timeout, $roo
 
 		showMessage: function(messageClass, message, callBack) {
 
+			// $('#view, .navbar').addClass('disabled');
+
 			$timeout(function() {
 
-				callBack();
+				// $('#view, .navbar').removeClass('disabled');
+				return callBack();
 			}, 2000)
 
 			return $('body').append('<div class="alert ' + messageClass + ' custom_alert"><h6>' + message + '</h6></div>');
 		},
 
 		showConfirm: function(message, callBack, callBack2) {
+
+			$('#view, .navbar').addClass('disabled');
 
 			var button = document.createElement('button');
 			button.innerHTML= 'Confirm';
@@ -35,12 +40,14 @@ app.service('messageService', ['$timeout', '$rootScope', function($timeout, $roo
 			button.onclick = function() {
 
 				$('.alert.alert-warning.custom_confirm').remove();
+				$('#view, .navbar').removeClass('disabled');
 				return callBack();
 			}
 
 			button2.onclick = function() {
 
 				$('.alert.alert-warning.custom_confirm').remove();
+				$('#view, .navbar').removeClass('disabled');
 
 				if(callBack2) {
 

@@ -4,7 +4,7 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th>Ocupation</th>
+        <th>Occupation</th>
         <th>Email</th>
         <th>Admin</th>
         <th>Bookable</th>
@@ -12,41 +12,34 @@
     </thead>
     <tbody>
       <tr ng-repeat="resource in resources">
-        <td value="{{resource.first_name}} {{resource.last_name}}">{{resource.first_name}} {{resource.last_name}}</td>
         <td>
-         
           <div class="form-group">
-            <select class="form-control">
+            <input id="resourceName" class="form-control" value="{{resource.first_name}} {{resource.last_name}}" type="text">
+          </div>
+        </td>
+        <td>
+          <div class="form-group">
+            <select id="resourceOccupation" class="form-control">
               <option ng-repeat="item in resourceTypes" ng-selected="resource.resource_type === item">{{item}}</option>
             </select>
           </div>
         </td>
         <td>
           <div class="form-group">
-            <input class="form-control" value="{{resource.email}}" type="text">
+            <input id="resourceEmail" class="form-control" value="{{resource.email}}" type="text">
           </div>
         </td>
-        <td ng-if="resource.admin === '1'">
+        <td>
           <div class="form-group">
-            <input class="form-control" type="checkbox" checked>
+            <input id="resourceIsAdmin" class="form-control" type="checkbox" ng-checked="resource.admin === '1'">
           </div>
         </td>
-        <td ng-if="resource.admin === '0'">
+        <td>
           <div class="form-group">
-            <input class="form-control" type="checkbox">
+            <input id="resourceBookable" class="form-control" type="checkbox" ng-checked="resource.bookable === '1'">
           </div>
         </td>
-        <td ng-if="resource.bookable === '1'">
-          <div class="form-group">
-            <input class="form-control" type="checkbox" checked>
-          </div>
-        </td>
-        <td ng-if="resource.bookable === '0'">
-          <div class="form-group">
-            <input class="form-control" type="checkbox">
-          </div>
-        </td>
-        <td value="">
+        <td>
           <div class="form-group">
             <button type="submit" class="btn btn-primary" ng-click="">Update</button>
           </div>
