@@ -184,16 +184,13 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     },
 
     Item_Clicked: function(item) {
+    
+      $scope.bookingToDisplay = item;
 
-      if(!this.Item_Resized) { // THIS PREVENTS A BUG WHERE THE BOOKING DETAILS FORM APEARS WHEN THE BOOKING IS RESIZED UNTIL I FIND A PERMANENT SOLUTION. \\
+      $scope.$apply(function() {
 
-        $scope.bookingToDisplay = item;
-
-        $scope.$apply(function() {
-
-          $scope.showBookingData = true;
-        });
-      }
+        $scope.showBookingData = true;
+      });
     },
 
     Item_Dragged: function (item, sectionID, start, end) {
@@ -252,7 +249,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       }
     },
 
-    Item_Resized: function(item, start, end) {
+    Item_Resized: function(item, start, end, handle) {
 
       if($rootScope.notAdminUser) {
 
@@ -261,7 +258,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       }
       else {
 
-        if(start.format() < moment().format()) {
+        if(start.format() < moment().format() && handle === 'left') {
 
           messageService.showMessage('alert-danger', 'You cannot extend a booking into the past!', $rootScope.closeMessage);
           return TimeScheduler.Init();
@@ -274,7 +271,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
           if(Calendar.Items[i].id === item.id) {
 
             foundItem = Calendar.Items[i];
-
+            
             return messageService.showConfirm(item.title + ' will start: ' + start.format('MMMM Do YYYY, h:mm a') + ' and end: ' + end.format('MMMM Do YYYY, h:mm a'), function() {
  
               foundItem.start = start;

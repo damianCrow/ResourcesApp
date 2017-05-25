@@ -908,7 +908,7 @@ var TimeScheduler = {
                         }
                     },
                     stop: function (event, ui) {
-                        var item, start, end;
+                        var item, start, end, handle;
                         var period, periodEnd, minuteDiff, section;
                         var $this;
 
@@ -922,13 +922,13 @@ var TimeScheduler = {
 
                         if (ui.position.left !== ui.originalPosition.left) {
                             // Left handle moved
-
+                            handle = 'left';
                             start = moment(TimeScheduler.Options.Start).tsAdd('minutes', minuteDiff * ($this.position().left / TimeScheduler.SectionWrap.width()));
                             end = item.end;
                         }
                         else {
                             // Right handle moved
-
+                            handle = 'right';
                             start = item.start;
                             end = moment(TimeScheduler.Options.Start).tsAdd('minutes', minuteDiff * (($this.position().left + $this.width()) / TimeScheduler.SectionWrap.width()));
                         }
@@ -949,7 +949,7 @@ var TimeScheduler = {
                         }
 
                         if (TimeScheduler.Options.Events.ItemResized) {
-                            TimeScheduler.Options.Events.ItemResized.call(this, item, start, end);
+                            TimeScheduler.Options.Events.ItemResized.call(this, item, start, end, handle);
                         }
                     }
                 });

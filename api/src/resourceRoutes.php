@@ -91,3 +91,84 @@ $app->post('/resource/signup', function($request, $response, $args) {
 
 	$dbconn->close();
 });
+
+$app->post('/resource/update/{id}', function($request, $response, $args) {
+
+	require_once('database_connection.php');
+
+	$data = $request->getParsedBody();
+	$id = $args['id'];
+
+	$name = json_encode($data["name"]);
+	$color = json_encode($data["color"]);
+	$notes = json_encode($data["notes"]);
+
+	$query = "SELECT name FROM resources WHERE id = $id";
+
+	$result = $dbconn->query($query);
+
+	if($result->num_rows > 0) {
+
+	    while($row = $result->fetch_assoc()) {
+
+	       $resourceName = json_encode($row["name"]);
+	    }
+
+       $query2 = "UPDATE bookings SET resource_name = $name WHERE resource_name = $resourceName";   
+	}
+	else {
+
+		$query2 = "";
+	}
+
+	$query3 = "UPDATE resources SET name = $name, colour_code = $color, notes = $notes WHERE id = $id";
+
+	if($dbconn->query($query2) && $dbconn->query($query3)) {
+
+		$response->getBody()->write('resource details successfully updated.');
+	}
+	else {
+
+		$response->getBody()->write('Error! '. $dbconn->error);
+	}
+
+	$dbconn->close();
+});
+
+$app->delete('/resource/{id}', function($request, $response, $args) {
+
+	require_once('database_connection.php');
+
+	$id = $args['id'];
+
+	$query = "SELECT * FROM resource WHERE id = $id";
+
+	$result = $dbconn->query($query);
+
+	if($result->num_rows > 0) {
+
+	    while($row = $result->fetch_assoc()) {
+
+	      $resourceName = json_encode($row["first_name"] . ' ' . $row["last_name"]);
+	    }
+
+       $query2 = "DELETE FROM bookings WHERE resource_name = $resourceName";   
+	}
+	else {
+
+		$query2 = "";
+	}
+
+	$query3 = "DELETE FROM resource WHERE id = $id";
+
+	if($dbconn->query($query2) && $dbconn->query($query3)) {
+
+		return $response->getBody()->write($resourceName . ' and all associated bookings deleted successfully.');
+	}
+	else {
+
+		return $response->getBody()->write('Error! '. $dbconn->error);
+	}
+
+	$dbconn->close();
+});
