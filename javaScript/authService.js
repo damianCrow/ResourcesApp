@@ -13,7 +13,7 @@ app.service('authService', ['$rootScope', '$window', '$location', 'messageServic
 
     		if(response.data === 'user not found!') {
 
-    			messageService.showMessage('Incorrect Email address or Password! Please try again.', function() {
+    			messageService.showMessage('alert-warning', 'Incorrect Email address or Password! Please try again.', function() {
 
     				$rootScope.closeMessage();
                     return $q.reject('userNotLoggedIn');

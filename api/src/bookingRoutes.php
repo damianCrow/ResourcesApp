@@ -45,11 +45,11 @@ $app->get('/booking/daterange/', function ($request, $response, $args) {
 
 		if($key === 'start_date') {
 
-			$operator = ' >= ';
+			$operator = ' > ';
 		}
 		else if($key === 'end_date') {
 
-			$operator = ' <= ';
+			$operator = ' < ';
 		}
 		else {
 
@@ -58,11 +58,11 @@ $app->get('/booking/daterange/', function ($request, $response, $args) {
 
 		if($counter === count($request->getQueryParams())) {
 
-			$sqlQueryParams .= $key . $operator . json_encode($value);
+			$sqlQueryParams .=  'start_date' . $operator . json_encode($value);
 		}
 		else {
 
-			$sqlQueryParams .= $key . $operator . json_encode($value) . ' AND ';
+			$sqlQueryParams .= 'end_date' . $operator . json_encode($value) . ' AND ';
 		}
 	}
 

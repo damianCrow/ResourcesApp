@@ -15,27 +15,47 @@ app.controller('resourceController', ['$rootScope', '$scope','getInfoService', '
 
 			    $scope.resources = response.data;
 			  });
-        messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
+        messageService.showMessage('alert-success', response.data, $rootScope.closeMessage);
       });
   	});
   }
 
-	$scope.updateResource = function(id) {
+	$scope.updateResource = function(id, idx) {
 
-  	messageService.showConfirm("Are you sure you want to UPDATE " + $scope.bookingToDisplay.title + "?", function() {
+  	messageService.showConfirm("Are you sure you want to UPDATE this resource?", function() {
 
+  		var isAdmin, isBoockable;
       var formData = new FormData();
-      var names = $('#resourceName')[0].value.split(' ');
+      var names = $('#resourceName' + idx)[0].value.split(' ');
+
+      if($('#resourceIsAdmin' + idx)[0].checked) {
+
+      	isAdmin = 1;
+      }
+      else {
+
+      	isAdmin = 0;
+      }
+
+      if($('#resourceBookable' + idx)[0].checked) {
+
+      	isBoockable = 1;
+      }
+      else {
+
+      	isBoockable = 0;
+      }
 
       formData.append('firstName', names[0]);
       formData.append('lastName', names[1]);
-      formData.append('occupation', $('#resourceOccupation')[0].value);
-      formData.append('email', $('#resourceEmail')[0].value);
-      formData.append('admin', $('#editProjectName')[0].value);
+      formData.append('occupation', $('#resourceOccupation' + idx)[0].value);
+      formData.append('email', $('#resourceEmail' + idx)[0].value);
+      formData.append('admin', isAdmin);
+      formData.append('bookable', isBoockable);
 
-      $rootScope.makeRequest('POST', 'api/public/booking/update/' + bookingId, formData, function(response) {
+      $rootScope.makeRequest('POST', 'api/public/resource/update/' + id, formData, function(response) {
 
-        messageService.showMessage('alert-info', response.data, $rootScope.closeMessage);
+        messageService.showMessage('alert-success', response.data, $rootScope.closeMessage);
       });
     });
   }

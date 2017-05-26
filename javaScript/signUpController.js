@@ -32,8 +32,8 @@ app.controller('signUpController', ['$scope', '$rootScope', 'messageService', fu
 
     $rootScope.makeRequest('POST', 'api/public/resource/signup', formData, function(response) {
 
-    	messageService.showMessage(response.data, $rootScope.closeMessage);
-    	$rootScope.redirect('/');
+    	messageService.showMessage('alert-success', response.data, $rootScope.closeMessage);
+    	$rootScope.redirect('/bookings');
     });
 	}
 }]);

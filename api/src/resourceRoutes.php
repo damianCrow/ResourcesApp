@@ -99,11 +99,16 @@ $app->post('/resource/update/{id}', function($request, $response, $args) {
 	$data = $request->getParsedBody();
 	$id = $args['id'];
 
-	$name = json_encode($data["name"]);
-	$color = json_encode($data["color"]);
-	$notes = json_encode($data["notes"]);
+	$firstName = json_encode($data["firstName"]);
+	$lastName = json_encode($data["lastName"]);
+	$occupation = json_encode($data["occupation"]);
+	$email = json_encode($data["email"]);
+	$admin = json_encode($data["admin"]);
+	$bookable = json_encode($data["bookable"]);
 
-	$query = "SELECT name FROM resources WHERE id = $id";
+	$newResourceName = json_encode($data["firstName"] . ' ' . $data["lastName"]);
+
+	$query = "SELECT * FROM resource WHERE id = $id";
 
 	$result = $dbconn->query($query);
 
@@ -111,21 +116,21 @@ $app->post('/resource/update/{id}', function($request, $response, $args) {
 
 	    while($row = $result->fetch_assoc()) {
 
-	       $resourceName = json_encode($row["name"]);
+	       $oldResourceName = json_encode($row["first_name"] . ' ' . $row["last_name"]);
 	    }
 
-       $query2 = "UPDATE bookings SET resource_name = $name WHERE resource_name = $resourceName";   
+       $query2 = "UPDATE bookings SET resource_name = $newResourceName WHERE resource_name = $oldResourceName";   
 	}
 	else {
 
 		$query2 = "";
 	}
 
-	$query3 = "UPDATE resources SET name = $name, colour_code = $color, notes = $notes WHERE id = $id";
+	$query3 = "UPDATE resource SET first_name = $firstName, last_name = $lastName, resource_type = $occupation, email = $email, admin = $admin, bookable = $bookable WHERE id = $id";
 
 	if($dbconn->query($query2) && $dbconn->query($query3)) {
 
-		$response->getBody()->write('resource details successfully updated.');
+		$response->getBody()->write(json_decode($newResourceName) . "'s details successfully updated.");
 	}
 	else {
 
@@ -163,7 +168,7 @@ $app->delete('/resource/{id}', function($request, $response, $args) {
 
 	if($dbconn->query($query2) && $dbconn->query($query3)) {
 
-		return $response->getBody()->write($resourceName . ' and all associated bookings deleted successfully.');
+		return $response->getBody()->write(json_decode($resourceName) . ' and all associated bookings deleted successfully.');
 	}
 	else {
 

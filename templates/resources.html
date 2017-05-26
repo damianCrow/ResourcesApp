@@ -11,37 +11,37 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="resource in resources">
+      <tr ng-repeat="resource in resources track by $index">
         <td>
           <div class="form-group">
-            <input id="resourceName" class="form-control" value="{{resource.first_name}} {{resource.last_name}}" type="text">
+            <input id="resourceName{{$index}}" class="form-control" value="{{resource.first_name}} {{resource.last_name}}" type="text">
           </div>
         </td>
         <td>
           <div class="form-group">
-            <select id="resourceOccupation" class="form-control">
+            <select id="resourceOccupation{{$index}}" class="form-control">
               <option ng-repeat="item in resourceTypes" ng-selected="resource.resource_type === item">{{item}}</option>
             </select>
           </div>
         </td>
         <td>
           <div class="form-group">
-            <input id="resourceEmail" class="form-control" value="{{resource.email}}" type="text">
+            <input id="resourceEmail{{$index}}" class="form-control" value="{{resource.email}}" type="text">
           </div>
         </td>
         <td>
           <div class="form-group">
-            <input id="resourceIsAdmin" class="form-control" type="checkbox" ng-checked="resource.admin === '1'">
+            <input id="resourceIsAdmin{{$index}}" class="form-control" type="checkbox" ng-checked="resource.admin === '1'">
           </div>
         </td>
         <td>
           <div class="form-group">
-            <input id="resourceBookable" class="form-control" type="checkbox" ng-checked="resource.bookable === '1'">
+            <input id="resourceBookable{{$index}}" class="form-control" type="checkbox" ng-checked="resource.bookable === '1'">
           </div>
         </td>
         <td>
           <div class="form-group">
-            <button type="submit" class="btn btn-primary" ng-click="updateResource(resource.id)">Update</button>
+            <button type="submit" class="btn btn-primary" ng-click="updateResource(resource.id, $index)">Update</button>
           </div>
         </td>
         <td value="">

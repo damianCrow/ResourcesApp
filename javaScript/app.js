@@ -49,7 +49,7 @@ app.run(['$rootScope', 'authService', 'messageService', function($rootScope, aut
 
     if(rejection === 'userNotAdmin') {
 
-      messageService.showMessage('Only ADMIN users can access this section', $rootScope.closeMessage);
+      messageService.showMessage('alert-warning', 'Only ADMIN users can access this section!', $rootScope.closeMessage);
 
       if(previous.$$route.originalPath) {
 
