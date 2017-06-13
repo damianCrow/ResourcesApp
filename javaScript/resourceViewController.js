@@ -8,6 +8,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   $scope.creatingProject = false;
   $scope.showBookingData = false;
   $scope.filterObj = {};
+  $scope.unfilteredBookings = [];
   $scope.selectedPeriod = '1 week'; 
 
   function populateEventsArray(arrayToPopulate, dataArray, callBack) {
@@ -193,8 +194,8 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       });
     },
 
-    Item_Dragged: function (item, sectionID, start, end) {
-
+    Item_Dragged: function(item, sectionID, start, end) {
+      
       if($rootScope.notAdminUser) {
 
         messageService.showMessage('alert-warning', 'You must be an ADMIN user to change a booking!', $rootScope.closeMessage);
@@ -207,6 +208,24 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
           messageService.showMessage('alert-warning', 'You cannot drag a booking into the past!', $rootScope.closeMessage);
           return TimeScheduler.Init();
         }
+
+        var bookings = $scope.unfilteredBookings;
+
+        for(var i = 0; i < bookings.length; i++) {
+
+          if(bookings[i].id !== item.id && bookings[i].resource_name === item.resource_name) {
+// console.log(moment.utc(moment(start)).format()< moment.utc(moment(bookings[i].start)).format());
+            if(moment.utc(moment(start)).format() > moment.utc(moment(bookings[i].start)).format() && moment.utc(moment(start)).format() < moment.utc(moment(bookings[i].end)).format() || moment.utc(moment(bookings[i].start)).format() > moment.utc(moment(start)).format() && moment.utc(moment(bookings[i].start)).format() < moment.utc(moment(end)).format()) {
+
+              return messageService.showMessage('alert-warning', item.resource_name + ' Is already booked for this time period.', function() {
+
+                $rootScope.closeMessage();
+                return TimeScheduler.Init();
+              });
+            }
+          }
+        }
+// console.log(moment.utc(moment(Calendar.Items[0].end)).format(), moment.utc(moment(end)).format());
         
         var foundItem;
 
@@ -262,6 +281,23 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
 
           messageService.showMessage('alert-warning', 'You cannot extend a booking into the past!', $rootScope.closeMessage);
           return TimeScheduler.Init();
+        }
+
+        var bookings = $scope.unfilteredBookings;
+
+        for(var i = 0; i < bookings.length; i++) {
+
+          if(bookings[i].id !== item.id && bookings[i].resource_name === item.resource_name) {
+
+            if(moment.utc(moment(start)).format() > moment.utc(moment(bookings[i].start)).format() && moment.utc(moment(start)).format() < moment.utc(moment(bookings[i].end)).format() || moment.utc(moment(bookings[i].start)).format() > moment.utc(moment(start)).format() && moment.utc(moment(bookings[i].start)).format() < moment.utc(moment(end)).format()) {
+
+              return messageService.showMessage('alert-warning', item.resource_name + ' Is already booked for this time period.', function() {
+                
+                $rootScope.closeMessage();
+                return TimeScheduler.Init();
+              });
+            }
+          }
         }
 
         var foundItem;
@@ -528,6 +564,7 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       });
 
       $scope.closeForm('editProjectForm');
+      TimeScheduler.Init();
     }
   }
 
@@ -605,6 +642,8 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     $scope.bookingsForThisMonthQuery = 'start_date=' + $scope.bookingsStartDate + '&end_date=' + $scope.bookingsEndDate;
 
     getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+// ARRAY FOR USING TO CHECK WEATHER BOOKINGS CLASH WITH OTHER BOOKINGS FOR THE SAME RESOURCE. \\
+      callBack($scope.unfilteredBookings, arrayOfResults);
 
       filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
 

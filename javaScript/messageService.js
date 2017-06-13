@@ -4,11 +4,11 @@ app.service('messageService', ['$timeout', '$rootScope', function($timeout, $roo
 
 		showMessage: function(messageClass, message, callBack) {
 
-			// $('#view, .navbar').addClass('disabled');
+			 $('#view, .navbar').addClass('disabled');
 
 			$timeout(function() {
 
-				// $('#view, .navbar').removeClass('disabled');
+				$('#view, .navbar').removeClass('disabled');
 				return callBack();
 			}, 2000)
 
@@ -24,7 +24,7 @@ app.service('messageService', ['$timeout', '$rootScope', function($timeout, $roo
 			button.className = 'btn btn-warning float-md-right confirm_button';
 
 			var button2 = document.createElement('button');
-			button2.innerHTML= 'Cancel';
+			button2.innerHTML = 'Cancel';
 			button2.className = 'btn btn-info float-md-right';
 
 			var div = document.createElement('div');

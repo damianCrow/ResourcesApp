@@ -730,12 +730,19 @@ var TimeScheduler = {
             }
         }
     },
+// VAR THAT HOLDS THE ITEM RESIZED STATUS. \\
+    itemJustResized: false,
 
     SetupItemEvents: function (itemElem) {
         if (TimeScheduler.Options.Events.ItemClicked) {
             itemElem.click(function (event) {
+              
                 event.preventDefault();
-                TimeScheduler.Options.Events.ItemClicked.call(this, $(this).data('item'));
+// HACK TO MAKE displayBookingForm NOT APPEAR WHEN ITEMS ARE RESIZED. \\               
+                if(!TimeScheduler.itemJustResized) {
+
+                    TimeScheduler.Options.Events.ItemClicked.call(this, $(this).data('item'));
+                }
             });
         }
 
@@ -902,6 +909,8 @@ var TimeScheduler = {
                     start: function (event, ui) {
                         // We don't want any events to show
                         $(this).find('.time-sch-item-event').hide();
+// itemJustResized SET TO TRUE \\
+                        TimeScheduler.itemJustResized = true;
 
                         if (TimeScheduler.Options.Events.ItemMovementStart) {
                             TimeScheduler.Options.Events.ItemMovementStart.call(this);
@@ -950,7 +959,12 @@ var TimeScheduler = {
 
                         if (TimeScheduler.Options.Events.ItemResized) {
                             TimeScheduler.Options.Events.ItemResized.call(this, item, start, end, handle);
+// itemJustResized SET TO FALSE AFTER 1 SECOND TO ALLOW TIME FOR RESIZE FUNCTION TO BE CALLED \\
+                            setTimeout(function() {
+                                TimeScheduler.itemJustResized = false;
+                            }, 1000)
                         }
+                         
                     }
                 });
             }
