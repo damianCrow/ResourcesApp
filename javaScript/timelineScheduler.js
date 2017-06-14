@@ -580,6 +580,12 @@ var TimeScheduler = {
         TimeScheduler.ShowCurrentTimeHandle = setTimeout(TimeScheduler.ShowCurrentTime, 30000);
     },
 
+    ShadeColor: function(color, percent) { 
+
+        var f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
+        return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
+    },
+
     CreateItems: function (items) {
         var item, event, section, itemElem, eventElem, itemContent, itemName, itemIcon;
         var minuteDiff, splits, itemDiff, itemSelfDiff, eventDiff, calcTop, calcLeft, calcWidth, foundStart, foundEnd;
@@ -617,9 +623,9 @@ var TimeScheduler = {
                         .addClass('time-sch-item ' + (item.classes ? item.classes : ''))
                         .css({
                             top: calcTop,
-                            background: '-webkit-linear-gradient(top, #C1C1C1 -90%, '+item.projectColor+' 100%)',
+                            background: '-webkit-linear-gradient(top, #C1C1C1 -70%, '+item.projectColor+' 100%)',
                             borderRadius: '5px',
-                            borderColor: item.projectColor,
+                            borderColor: TimeScheduler.ShadeColor(item.projectColor, -0.25),
                             left: calcLeft + '%',
                             width: calcWidth + '%'
                         })
@@ -707,18 +713,19 @@ var TimeScheduler = {
                     //  elem.end must be between prevElem.start and prevElem.end) AND
                     // (elem.top must be between prevElem.top and prevElem.bottom OR
                     //  elem.bottom must be between prevElem.top and prevElem.bottom)
-                    needsNewRow =
-                        (
-                            (prevElem.start <= elem.start && elem.start <= prevElem.end) ||
-                            (prevElem.start <= elem.end && elem.end <= prevElem.end)
-                        ) && (
-                            (prevElemTop <= elemTop && elemTop <= prevElemBottom) ||
-                            (prevElemTop <= elemBottom && elemBottom <= prevElemBottom)
-                        );
+//  CODE COMMENTED OUT BELOW PREVENTS THERE BEING SPACES BETWEEN BOOKING ELEMENTS ON CALENDER. \\                    
+                    // needsNewRow =
+                    //     (
+                    //         (prevElem.start <= elem.start && elem.start <= prevElem.end) ||
+                    //         (prevElem.start <= elem.end && elem.end <= prevElem.end)
+                    //     ) && (
+                    //         (prevElemTop <= elemTop && elemTop <= prevElemBottom) ||
+                    //         (prevElemTop <= elemBottom && elemBottom <= prevElemBottom)
+                    //     );
 
-                    if (needsNewRow) {
-                        elem.Element.css('top', prevElemBottom + 1);
-                    }
+                    // if (needsNewRow) {
+                    //     elem.Element.css('top', prevElemBottom + 1);
+                    // }
                 }
                 
                 elemBottom = elem.Element.position().top + elem.Element.outerHeight() + 1;
