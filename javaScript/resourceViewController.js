@@ -2,6 +2,21 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   
   authService.isAdminUser(); // CALLED TO DETERMINE WHETHER OR NOT THE CURRENT USER IS AN ADMIN USER \\
 
+  angular.element(document).ready(function() {
+
+    $scope.bookingsStartDate = moment.utc(moment(today)).format();
+    $scope.getBookings(populateEventsArray);
+    $rootScope.makeRequest('GET', 'api/public/harProject', null, function(response) { // CALLED TO GET ALL ACTIVE PROJECTS FROM THE HARVEST API. \\
+
+       console.log(response);
+    });
+
+    $rootScope.makeRequest('GET', 'api/public/harResources', null, function(response) { // CALLED TO GET ALL RESOURCES FROM THE HARVEST API. \\
+
+      console.log(response);
+    });
+  });
+
   var today = moment().startOf('day');
   $scope.startDay = moment(today);
   $scope.creatingBooking = false;
@@ -10,37 +25,46 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
   $scope.filterObj = {};
   $scope.unfilteredBookings = [];
   $scope.selectedPeriod = '1 week'; 
+  $scope.projectNameCharLimit = 25;
 
   function populateEventsArray(arrayToPopulate, dataArray, callBack) {
 
     arrayToPopulate.splice(0, arrayToPopulate.length);
+    var projectsWithBookingsArray = [];
 
-    angular.forEach(dataArray, function(booking, idx) {
+    angular.forEach($scope.projects, function(project, projIdx) {
 
-      var bookingData = {
-        id: booking.id,
-        title: booking.title,
-        name: '<span class="booking_details">' + booking.title + '</span><span class="booking_details">' + booking.resource_name + '</span>',
-        start: moment(booking.start_date),
-        end: moment(booking.end_date),
-        notes: booking.notes,
-        resource_name: booking.resource_name,
-        project_name: booking.project_name,
-        createdBy: booking.created_by,
-        classes: 'item-status-three'
-      }
+      angular.forEach(dataArray, function(booking, idx) {
 
-      for(var i = 0; i < $scope.projects.length; i++) {
-
-        if($scope.projects[i].name === booking.project_name) {
-
-          bookingData.projectColor = $scope.projects[i].colour_code;
-          bookingData.sectionID = $scope.projects[i].id;
+        var bookingData = {
+          id: booking.id,
+          title: booking.title,
+          name: '<span class="booking_details">' + booking.title + '</span><span class="booking_details">' + booking.resource_name + '</span>',
+          start: moment(booking.start_date),
+          end: moment(booking.end_date),
+          notes: booking.notes,
+          resource_name: booking.resource_name,
+          project_name: booking.project_name,
+          createdBy: booking.created_by,
+          classes: 'item-status-three'
         }
-      }
 
-      arrayToPopulate.push(bookingData);
+        if(project.name === booking.project_name) {
+
+          bookingData.projectColor = project.colour_code;
+          bookingData.sectionID = project.id;
+
+          if(projectsWithBookingsArray.indexOf(project) < 0) {
+           
+            projectsWithBookingsArray.push(project);
+          }
+        }
+
+        arrayToPopulate.push(bookingData);
+      });
     });
+
+    popuplateSectionsArray(projectsWithBookingsArray);
 
     if(callBack) {
 
@@ -364,14 +388,21 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     }
   };
 
-  getInfoService.getProjects(popuplateSectionsArray);
-
-  function popuplateSectionsArray(response, callBack) {
+  getInfoService.getProjects(function(response, callBack) {
 
     $scope.projects = response.data;
+
+    if(callBack) {
+
+      callBack();
+    }
+  });
+
+  function popuplateSectionsArray(projectsWithBookings, callBack) {
+    
     Calendar.Sections.splice(0, Calendar.Sections.length);
 
-    angular.forEach(response.data, function(item) {
+    angular.forEach(projectsWithBookings, function(item) {
 
       var itemObj = {
         id: item.id,
@@ -443,20 +474,22 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
     formData.append('notes', $('#bookingNotes')[0].value);
     formData.append('resource_name', $('#resourceName')[0].value);
     formData.append('project_name', $('#projectName')[0].value);
+    
+    console.log($scope.harvestResources[$('#resourceName option:selected').data('index')]);
 
-    $rootScope.makeRequest('POST', 'api/public/booking', formData, function(response) {
+    // $rootScope.makeRequest('POST', 'api/public/booking', formData, function(response) {
 
-      messageService.showMessage('alert-success', response.data, $rootScope.closeMessage);
-      getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
+    //   messageService.showMessage('alert-success', response.data, $rootScope.closeMessage);
+    //   getInfoService.getBookingsDateRange($scope.bookingsForThisMonthQuery, function(arrayOfResults) {
 
-        filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
+    //     filterService.filterObjArray(arrayOfResults, $scope.filterObj, function(resultArray) {
 
-          populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
-        });
-      });
-    });
+    //       populateEventsArray(Calendar.Items, resultArray, Calendar.Init);
+    //     });
+    //   });
+    // });
 
-    $scope.closeForm('newBookingForm');
+    // $scope.closeForm('newBookingForm');
   }
 
   $scope.deleteBooking = function(bookingId) {
@@ -651,10 +684,4 @@ app.controller('resourceViewController', ['$scope', '$http', '$rootScope', 'getI
       });
     });
   }
-
-  angular.element(document).ready(function() {
-
-    $scope.bookingsStartDate = moment.utc(moment(today)).format();
-    $scope.getBookings(populateEventsArray);
-  });
 }]);

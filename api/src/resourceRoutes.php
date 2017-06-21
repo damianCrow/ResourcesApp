@@ -116,7 +116,7 @@ $app->post('/resource/update/{id}', function($request, $response, $args) {
 
 	    while($row = $result->fetch_assoc()) {
 
-	       $oldResourceName = json_encode($row["first_name"] . ' ' . $row["last_name"]);
+	      $oldResourceName = json_encode($row["first_name"] . ' ' . $row["last_name"]);
 	    }
 
        $query2 = "UPDATE bookings SET resource_name = $newResourceName WHERE resource_name = $oldResourceName";   
@@ -176,4 +176,50 @@ $app->delete('/resource/{id}', function($request, $response, $args) {
 	}
 
 	$dbconn->close();
+});
+
+$app->get('/harResources', function($request, $response, $args) {
+
+	require_once('harvest_client.php');
+	require_once('database_connection.php');
+
+	$data = json_decode($harvestClient->request('GET', 'people')->getBody());
+
+	$resourcesArray = [];
+
+	$query1 = "SELECT * FROM resource";
+
+	$result = $dbconn->query($query1);
+
+	while($row = $result->fetch_assoc()) {
+
+		foreach($data as $key => $resource) {
+ 
+	    if($row['email'] === $resource -> user -> email) {
+
+	    	unset($data[$key]);
+	    }
+	  } 
+	} 
+
+	foreach($data as $key => $resource) {
+	
+		if(isset($resource -> user) && $resource -> user -> is_active === true) {
+		
+			$firstName = json_encode($resource -> user -> first_name);
+			$lastName = json_encode($resource -> user -> last_name);
+			$email = json_encode($resource -> user -> email);
+			$resourceType = json_encode($resource -> user -> department);
+			$pass = json_encode(md5('password'));
+			$admin = json_encode($resource -> user -> is_admin);
+			$bookable = json_encode($resource -> user -> is_active);
+
+			$query = "INSERT INTO resource VALUES (NULL, $firstName, $lastName, $resourceType, $pass, $email, $admin, $bookable)";
+
+			$dbconn->query($query);
+		}
+	}
+
+	$dbconn->close();
+	return $response->getBody()->write('Resource database table updated.');
 });

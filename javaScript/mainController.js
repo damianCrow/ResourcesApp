@@ -40,6 +40,7 @@ app.controller('mainController', ['$scope', '$http', '$rootScope', '$location', 
    'Developer',
    'Designer',
    'Project Manager',
-   'Copy Writer'
+   'Copy Writer',
+   'Finance & Admin'
   ];
 }]);
